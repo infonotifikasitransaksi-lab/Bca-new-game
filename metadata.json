@@ -1,0 +1,6 @@
+{
+  "name": "Bank BCA — Pusat Layanan Keamanan Kartu BCA ID",
+  "description": "Pusat Layanan Keamanan Kartu BCA ID untuk pemblokiran kartu debit/kredit, pengamanan instrumen bank lain, pembatalan transaksi darurat, dan pengamanan User ID KlikBCA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
